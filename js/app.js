@@ -76,6 +76,7 @@ function home(){
   <div class="pills"><span class="pill">${b.icon} ${tx(b.n)}</span> <span class="pill">${WORLDS[worldOf(N)][0]} ${wName(worldOf(N))}</span> <span class="pill">⭐ ${totalStars(p)}</span></div>
   <button class="big" id="play">▶ ${tx(B('เล่นด่าน','Play level'))} ${N}</button>
   <button class="big alt" id="map">🗺️ ${tx(B('แผนที่ด่าน','Level map'))}</button>
+  <div class="hint" style="margin-top:14px">${tx(B('สร้างโดย','Created by'))} <b>Nattawut Ch.</b></div>
   ${noTh?`<div class="hint">🔇 ${tx(B('เครื่องนี้ยังไม่มีเสียงอ่านภาษาไทย — ติดตั้งเสียงไทยใน Windows (Settings › Time & language › Speech) หรือใช้เบราว์เซอร์ Edge/Chrome','No Thai voice found on this device — install a Thai voice in your system, or use Edge/Chrome'))}</div>`:''}
   </div>`;
   $('#play').onclick=()=>{ctx();start(N)};$('#map').onclick=()=>{MP=Math.floor((N-1)/100);map()};
@@ -106,7 +107,8 @@ function settings(){
   <div class="hint">${tx(B('ข้ามไปข้างหน้าได้ ด่านที่ผ่านแล้วยังอยู่ครบ','You can jump ahead — finished levels are kept.'))}</div>
   <button class="big alt" id="sw">🔁 ${tx(B('เปลี่ยนผู้เล่น','Switch player'))}</button>
   <button class="big grey" id="rs" style="font-size:16px;padding:10px">${tx(B('ล้างความคืบหน้าของผู้เล่นนี้','Reset this player'))}</button>
-  <button class="big grey" id="dl" style="font-size:16px;padding:10px">🗑️ ${tx(B('ลบผู้เล่นนี้','Delete this player'))}</button></div>`;
+  <button class="big grey" id="dl" style="font-size:16px;padding:10px">🗑️ ${tx(B('ลบผู้เล่นนี้','Delete this player'))}</button>
+  <div class="hint" style="text-align:center">${tx(B('สร้างโดย','Created by'))} <b>Nattawut Ch.</b> · v${APP_CONFIG.version}</div></div>`;
   $('#back').onclick=home;
   $('#updchk').onclick=manualUpdateCheck;
   $('#vt').onclick=()=>speak({t:'สวัสดี หนึ่ง สอง สาม',l:'th'},{t:'Hello. One, two, three.',l:'en'});

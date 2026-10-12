@@ -8,7 +8,7 @@ button{font:inherit;cursor:pointer;border:0;color:inherit}
 .top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
 .pill{background:var(--card);border-radius:999px;padding:8px 14px;font-weight:700;box-shadow:0 3px 0 #0002}
 .iconbtn{background:var(--card);border-radius:50%;width:46px;height:46px;font-size:22px;box-shadow:0 3px 0 #0002}
-.iconbtn:active,.big:active,.opt:active{transform:translateY(3px);box-shadow:none}
+.iconbtn:active,button.big:active,.opt:active{transform:translateY(3px);box-shadow:none}
 .grow{flex:1}
 .bar{flex:1;height:16px;background:#fff8;border-radius:99px;overflow:hidden}
 .bar i{display:block;height:100%;background:var(--accent);border-radius:99px;transition:width .3s}
@@ -25,8 +25,8 @@ button{font:inherit;cursor:pointer;border:0;color:inherit}
 .opt.good{background:#c8f7d9;border-color:var(--ok)}
 .opt.wrong{background:#ffd6d6;border-color:var(--bad);animation:shake .4s;opacity:.6;pointer-events:none}
 @keyframes shake{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
-.big{display:block;width:100%;background:var(--accent);color:#fff;font-size:clamp(22px,5vw,32px);font-weight:800;padding:16px;border-radius:24px;box-shadow:0 6px 0 #0003;margin:10px 0}
-.big.alt{background:#5b8def}.big.grey{background:#8d99ae}
+button.big{display:block;width:100%;background:var(--accent);color:#fff;font-size:clamp(22px,5vw,32px);font-weight:800;padding:16px;border-radius:24px;box-shadow:0 6px 0 #0003;margin:10px 0}
+button.big.alt{background:#5b8def}button.big.grey{background:#8d99ae}
 h1{margin:6px 0;font-size:clamp(28px,7vw,46px)}
 .sub{opacity:.8;font-weight:600}
 .mascot{font-size:90px;animation:bob 2s infinite ease-in-out}
@@ -71,10 +71,10 @@ body{overflow-x:hidden}
 .card{background:linear-gradient(180deg,#fffffff2,#ffffffd8);backdrop-filter:blur(6px);border:3px solid #fff;box-shadow:0 10px 0 #00000014,0 18px 30px #0002;animation:cin .45s cubic-bezier(.2,1.4,.4,1)}
 @keyframes cin{from{opacity:0;transform:translateY(24px) scale(.95)}}
 h1{background:linear-gradient(90deg,#ff7a18,#e0399b,#6a5cff);-webkit-background-clip:text;background-clip:text;color:transparent;letter-spacing:.5px}
-.big{background:linear-gradient(180deg,#ffb347,#ff8a00);border-bottom:5px solid #c96a00;box-shadow:0 8px 14px #0003;transition:transform .12s,filter .12s}
-.big:hover{filter:brightness(1.08);transform:translateY(-2px)}
-.big.alt{background:linear-gradient(180deg,#7aa7ff,#4a7de8);border-bottom-color:#2f56b0}
-.big.grey{background:linear-gradient(180deg,#a8b2c4,#8190a8);border-bottom-color:#5d6a80}
+button.big{background:linear-gradient(180deg,#ffb347,#ff8a00);border-bottom:5px solid #c96a00;box-shadow:0 8px 14px #0003;transition:transform .12s,filter .12s}
+button.big:hover{filter:brightness(1.08);transform:translateY(-2px)}
+button.big.alt{background:linear-gradient(180deg,#7aa7ff,#4a7de8);border-bottom-color:#2f56b0}
+button.big.grey{background:linear-gradient(180deg,#a8b2c4,#8190a8);border-bottom-color:#5d6a80}
 .opt{background:linear-gradient(180deg,#fff,#f1f5ff);transition:transform .12s,border-color .12s}
 .opt:hover{transform:translateY(-3px) scale(1.03);border-color:#7aa7ff}
 .opt.good{animation:yay .5s;background:linear-gradient(180deg,#d9fbe6,#aef0c6)}
@@ -165,7 +165,7 @@ body{overflow-x:hidden;min-height:100vh;min-height:100dvh}
 @media (max-width:360px){
   #app{padding-left:10px;padding-right:10px}
   .card{padding:12px;border-radius:20px}
-  .big{padding:12px}
+  button.big{padding:12px}
   .iconbtn{width:42px;height:42px}
   .chips{gap:6px}.chip{font-size:13px;padding:8px 2px}
 }

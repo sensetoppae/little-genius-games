@@ -21,7 +21,7 @@ const TYPES={
  count:{icon:'🔢',n:B('นับเลข','Counting')},
  numRec:{icon:'🔟',n:B('รู้จักตัวเลข','Numbers')},
  vocab:{icon:'🖼️',n:B('คำศัพท์ไทย-อังกฤษ','Thai-English words')},
- letters:{icon:'Aก',n:B('ตัวอักษร ก-ฮ / A-Z','Letters')},
+ letters:{icon:'🔤',n:B('ตัวอักษร ก-ฮ / A-Z','Letters')},
  add:{icon:'➕',n:B('การบวก','Addition')},
  sub:{icon:'➖',n:B('การลบ','Subtraction')},
  mul:{icon:'✖️',n:B('การคูณ','Multiplication')},
