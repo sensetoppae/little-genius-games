@@ -173,8 +173,8 @@ function speakQ(q){const l=[q.prompt];if(q.say)l.push(q.say);speak(...l)}
 function next(delay){G.i++;afterSpeech(()=>nextQ(),delay||500)}
 
 function drawChoice(q){
-  app.innerHTML=topbar()+`<div class="card"><div class="prompt">${tx(q.prompt)} <button class="iconbtn" id="spk" style="width:38px;height:38px;font-size:18px">🔊</button></div>
-  <div class="visual ${q.vcls||''}">${q.visual||''}</div>
+  app.innerHTML=topbar()+`<div class="card gcard"><div class="gq"><div class="prompt">${tx(q.prompt)} <button class="iconbtn" id="spk" style="width:38px;height:38px;font-size:18px">🔊</button></div>
+  <div class="visual ${q.vcls||''}">${q.visual||''}</div></div>
   <div class="opts ${q.cls||''}">${q.opts.map((o,i)=>`<button class="opt ${q.emoji?'emoji':''} ${o.h.length>9?'sm':''}" data-i="${i}">${o.h}</button>`).join('')}</div></div>`;
   $('#exit').onclick=exitGame;$('#spk').onclick=()=>speakQ(q);
   document.querySelectorAll('.visual .ci').forEach(el=>el.onclick=()=>{
@@ -220,10 +220,10 @@ function drawTapCount(q){
 }
 function drawSpell(q){
   let pos=0;
-  app.innerHTML=topbar()+`<div class="card"><div class="prompt">${tx(q.prompt)} <button class="iconbtn" id="spk" style="width:38px;height:38px;font-size:18px">🔊</button></div>
-  <div class="visual big">${q.emoji}</div><div class="sub" style="font-size:20px">${q.hint}</div>
-  <div class="slots">${q.word.split('').map(()=>`<div class="slot"></div>`).join('')}</div>
-  <div class="tiles">${q.tiles.map((c,i)=>`<button class="tile" data-i="${i}">${c}</button>`).join('')}</div></div>`;
+  app.innerHTML=topbar()+`<div class="card gcard"><div class="gq"><div class="prompt">${tx(q.prompt)} <button class="iconbtn" id="spk" style="width:38px;height:38px;font-size:18px">🔊</button></div>
+  <div class="visual big">${q.emoji}</div><div class="sub" style="font-size:20px">${q.hint}</div></div>
+  <div class="ga"><div class="slots">${q.word.split('').map(()=>`<div class="slot"></div>`).join('')}</div>
+  <div class="tiles">${q.tiles.map((c,i)=>`<button class="tile" data-i="${i}">${c}</button>`).join('')}</div></div></div>`;
   $('#exit').onclick=exitGame;
   $('#spk').onclick=()=>speak({t:q.en,l:'en'});
   const slots=document.querySelectorAll('.slot');

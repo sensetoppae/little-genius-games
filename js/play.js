@@ -118,12 +118,12 @@ function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);
 function roomDraw(artIdx){
   theme(307);
   const S=600;let art=artIdx==null?-1:artIdx,col=PCOL[0][0],tool=art<0?'brush':'fill',size=14,hist=[],drawing=false,last=null;
-  app.innerHTML=roomTop()+`<div class="card"><h1>🎨 ${tx(B('วาดรูป / ระบายสี','Draw & colour'))}</h1>
+  app.innerHTML=roomTop()+`<div class="card drawcard"><h1>🎨 ${tx(B('วาดรูป / ระบายสี','Draw & colour'))}</h1>
   <div class="tabs"><button class="tab ${art<0?'on':''}" data-a="-1">✏️ ${tx(B('กระดานเปล่า','Blank'))}</button>${ART.map((a,i)=>`<button class="tab ${i===art?'on':''}" data-a="${i}">${a[0]}</button>`).join('')}</div>
   <div class="cwrap"><canvas id="cp" width="${S}" height="${S}"></canvas><canvas id="cl" width="${S}" height="${S}"></canvas></div>
-  <div class="pal">${PCOL.map((p,i)=>`<button class="sw2 ${i===0?'on':''}" data-i="${i}" style="background:${p[0]}"></button>`).join('')}</div>
+  <div class="ctl"><div class="pal">${PCOL.map((p,i)=>`<button class="sw2 ${i===0?'on':''}" data-i="${i}" style="background:${p[0]}"></button>`).join('')}</div>
   <div class="tools"><button class="tl" data-t="brush">🖌️</button><button class="tl" data-t="fill">🪣</button><button class="tl" data-t="erase">🧽</button>
-  <button class="tl" id="small">•</button><button class="tl" id="bigb" style="font-size:34px">●</button><button class="tl" id="undo">↩️</button><button class="tl" id="clr">🗑️</button></div></div>`;
+  <button class="tl" id="small">•</button><button class="tl" id="bigb" style="font-size:34px">●</button><button class="tl" id="undo">↩️</button><button class="tl" id="clr">🗑️</button></div></div></div>`;
   const cp=$('#cp'),cl=$('#cl'),g=cp.getContext('2d',{willReadFrequently:true}),gl=cl.getContext('2d',{willReadFrequently:true});
   g.fillStyle='#fff';g.fillRect(0,0,S,S);g.lineCap=g.lineJoin='round';
   if(art>=0){gl.lineWidth=9;gl.lineCap=gl.lineJoin='round';gl.strokeStyle='#2b2d42';ART[art][2](gl)}
