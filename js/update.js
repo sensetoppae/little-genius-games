@@ -4,7 +4,7 @@
    version.json: {"latest":"1.1.0","min":"1.0.0","notes":{"th":"...","en":"..."}}
    latest > current -> friendly update banner; current < min -> update required screen. */
 const APP_CONFIG={
-  version:'1.0.0',
+  version:'1.1.0',
   playPackage:'com.example.littlegenius',   // TODO: replace with the real Play Store package id
   updateUrl:'https://sensetoppae.github.io/little-genius-games/version.json'   // hosted on GitHub Pages
 };

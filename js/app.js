@@ -74,13 +74,16 @@ function home(){
   <h1>${tx(B(`สวัสดี ${p.name}!`,`Hello ${p.name}!`))}</h1>
   <div class="sub">${tx(B('เกมหนูน้อยอัจฉริยะ — 10,000 ด่าน','Little Genius Games — 10,000 levels'))}</div>
   <div class="pills"><span class="pill">${b.icon} ${tx(b.n)}</span> <span class="pill">${WORLDS[worldOf(N)][0]} ${wName(worldOf(N))}</span> <span class="pill">⭐ ${totalStars(p)}</span></div>
+  <div class="sect">📚 ${tx(B('สื่อการเรียนรู้','Learning media'))}</div>
   <button class="big" id="play">▶ ${tx(B('เล่นด่าน','Play level'))} ${N}</button>
   <button class="big alt" id="map">🗺️ ${tx(B('แผนที่ด่าน','Level map'))}</button>
+  <div class="sect">🎨 ${tx(B('มุมเล่นอิสระ','Free Play'))}</div>
+  <button class="big pink" id="free">🎨 ${tx(B('วาดรูป ตัวเลข ตัวอักษร ดนตรี','Draw, numbers, letters, music'))}</button>
   <div class="hint" style="margin-top:14px">${tx(B('สร้างโดย','Created by'))} <b>Nattawut Ch.</b></div>
   ${noTh?`<div class="hint">🔇 ${tx(B('เครื่องนี้ยังไม่มีเสียงอ่านภาษาไทย — ติดตั้งเสียงไทยใน Windows (Settings › Time & language › Speech) หรือใช้เบราว์เซอร์ Edge/Chrome','No Thai voice found on this device — install a Thai voice in your system, or use Edge/Chrome'))}</div>`:''}
   </div>`;
   $('#play').onclick=()=>{ctx();start(N)};$('#map').onclick=()=>{MP=Math.floor((N-1)/100);map()};
-  $('#who').onclick=pickPlayer;$('#set').onclick=settings;bindLang(home);
+  $('#free').onclick=()=>{ctx();playHub()};$('#who').onclick=pickPlayer;$('#set').onclick=settings;bindLang(home);
   if(p.name&&!home.greeted){home.greeted=true}
 }
 function askConfirm(msg,onYes){
