@@ -17,7 +17,33 @@ function deco(N){
   d.innerHTML=Array.from({length:8},()=>`<span style="left:${ri(0,96)}%;font-size:${ri(22,50)}px;animation-duration:${ri(14,30)}s;animation-delay:-${ri(0,30)}s">${pick(base)}</span>`).join('');
 }
 function theme(N){const w=WORLDS[worldOf(N)];document.documentElement.style.setProperty('--c1',w[3]);document.documentElement.style.setProperty('--c2',w[4]);deco(N)}
-const langBtn=()=>`<button class="iconbtn" id="lang">${DB.lang==='th'?'EN':'ไทย'}</button>`;
+const isFS=()=>!!(document.fullscreenElement||document.webkitFullscreenElement||document.body.classList.contains('fs-mode'));
+const fsBtn=()=>`<button class="iconbtn" id="fsbtn" title="${tx(B('โหมดเต็มจอ','Fullscreen'))}">${isFS()?'🗗':'⛶'}</button>`;
+function updateFSUI(){
+  const on=isFS();
+  document.querySelectorAll('#fsbtn').forEach(b=>{b.textContent=on?'🗗':'⛶';b.title=tx(on?B('ออกจากโหมดเต็มจอ','Exit fullscreen'):B('โหมดเต็มจอ','Fullscreen'))});
+  const sf=$('#sfs');if(sf){sf.classList.toggle('on',on);sf.textContent=on?'ON':'OFF'}
+}
+function toggleFS(){
+  sTap();
+  const doc=document,el=doc.documentElement,nativeFS=doc.fullscreenElement||doc.webkitFullscreenElement;
+  if(nativeFS||doc.body.classList.contains('fs-mode')){
+    doc.body.classList.remove('fs-mode');
+    if(doc.exitFullscreen)doc.exitFullscreen().catch(()=>{});
+    else if(doc.webkitExitFullscreen)try{doc.webkitExitFullscreen()}catch(e){}
+  }else{
+    doc.body.classList.add('fs-mode');
+    if(el.requestFullscreen)el.requestFullscreen().catch(()=>{});
+    else if(el.webkitRequestFullscreen)try{el.webkitRequestFullscreen()}catch(e){}
+  }
+  updateFSUI();
+}
+['fullscreenchange','webkitfullscreenchange'].forEach(ev=>document.addEventListener(ev,()=>{
+  document.body.classList.toggle('fs-mode',!!(document.fullscreenElement||document.webkitFullscreenElement));
+  updateFSUI();
+}));
+document.addEventListener('click',e=>{if(e.target&&e.target.closest&&e.target.closest('#fsbtn'))toggleFS()});
+const langBtn=()=>`<button class="iconbtn" id="lang">${DB.lang==='th'?'EN':'ไทย'}</button>${fsBtn()}`;
 function bindLang(f){const b=$('#lang');if(b)b.onclick=()=>{DB.lang=DB.lang==='th'?'en':'th';save();f()}}
 const starStr=n=>'★'.repeat(n||0);
 const totalStars=p=>Object.values(p.stars).reduce((a,b)=>a+b,0);
@@ -97,8 +123,9 @@ function askConfirm(msg,onYes){
 function settings(){
   const p=P();theme(Math.min(p.unlocked,MAXL));
   const row=(label,id,on,txt)=>`<div class="srow"><span>${label}</span><button class="sw ${on?'on':''}" id="${id}">${txt}</button></div>`;
-  app.innerHTML=`<div class="top"><button class="iconbtn" id="back">⬅</button><div class="grow"></div></div><div class="card">
+  app.innerHTML=`<div class="top"><button class="iconbtn" id="back">⬅</button><div class="grow"></div>${fsBtn()}</div><div class="card">
   <h1>⚙️ ${tx(B('ตั้งค่า','Settings'))}</h1>
+  ${row(tx(B('โหมดเต็มจอ','Fullscreen mode')),'sfs',isFS(),isFS()?'ON':'OFF')}
   ${row(tx(B('ภาษาในเกม','Game language')),'sl',true,DB.lang==='th'?'ไทย':'English')}
   ${row(tx(B('เสียงพูด (กดแล้วมีเสียงอ่าน)','Voice (tap to hear)')),'sv',DB.voice!==false,DB.voice!==false?'ON':'OFF')}
   ${row(tx(B('อ่านโจทย์ให้ฟังอัตโนมัติ','Read questions aloud')),'sa',p.auto,p.auto?'ON':'OFF')}
@@ -113,6 +140,7 @@ function settings(){
   <button class="big grey" id="dl" style="font-size:16px;padding:10px">🗑️ ${tx(B('ลบผู้เล่นนี้','Delete this player'))}</button>
   <div class="hint" style="text-align:center">${tx(B('สร้างโดย','Created by'))} <b>Nattawut Ch.</b> · v${APP_CONFIG.version}</div></div>`;
   $('#back').onclick=home;
+  $('#sfs').onclick=toggleFS;
   $('#updchk').onclick=manualUpdateCheck;
   $('#vt').onclick=()=>speak({t:'สวัสดี หนึ่ง สอง สาม',l:'th'},{t:'Hello. One, two, three.',l:'en'});
   $('#sl').onclick=()=>{DB.lang=DB.lang==='th'?'en':'th';save();settings()};
@@ -157,7 +185,7 @@ function start(N){
 const pool=N=>poolOf(N).filter(t=>t!=='memory');
 function topbar(){
   const ty=G.boss?{icon:G.N%100===0?'🏆':'👑',n:B('ด่านบอส!','Boss!')}:TYPES[G.type];
-  return `<div class="top"><button class="iconbtn" id="exit">✖</button><div class="bar"><i style="width:${G.i/G.total*100}%"></i></div><span class="pill">${ty.icon} ${G.N}</span></div>
+  return `<div class="top"><button class="iconbtn" id="exit">✖</button><div class="bar"><i style="width:${G.i/G.total*100}%"></i></div><span class="pill">${ty.icon} ${G.N}</span>${fsBtn()}</div>
   ${G.intro?`<div class="banner">🎓 ${tx(bandOf(G.N).n)} · ${tx(TYPES[G.type]?TYPES[G.type].n:B('ด่านบอส','Boss'))}</div>`:''}`;
 }
 function exitGame(){try{speechSynthesis.cancel()}catch(e){}MUS.vol=1;MP=Math.floor((G.N-1)/100);map()}

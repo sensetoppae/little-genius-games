@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>เกมหนูน้อยอัจฉริยะ - TikTok Version</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #4F46E5;
+      --text-dark: #1E293B;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Prompt', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    body {
+      background-color: #0F172A;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 0;
+    }
+
+    /* TikTok Canvas 1080 x 1920 (9:16) */
+    .tiktok-canvas {
+      width: 1080px;
+      height: 1920px;
+      background: linear-gradient(180deg, #F0F4FF 0%, #FFFFFF 20%, #FAF5FF 85%, #F0FDF4 100%);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      padding: 110px 100px 200px 90px; /* Safe zones for TikTok UI buttons and caption */
+    }
+
+    /* Decorative glowing gradient orbs */
+    .orb-1 {
+      position: absolute;
+      top: -120px;
+      right: -100px;
+      width: 550px;
+      height: 550px;
+      background: radial-gradient(circle, rgba(236, 72, 153, 0.22) 0%, rgba(255, 255, 255, 0) 70%);
+      pointer-events: none;
+    }
+    .orb-2 {
+      position: absolute;
+      top: 30%;
+      left: -150px;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(79, 70, 229, 0.18) 0%, rgba(255, 255, 255, 0) 70%);
+      pointer-events: none;
+    }
+    .orb-3 {
+      position: absolute;
+      bottom: -100px;
+      right: -100px;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.2) 0%, rgba(255, 255, 255, 0) 70%);
+      pointer-events: none;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 32px;
+      position: relative;
+    }
+
+    .mascots {
+      font-size: 52px;
+      letter-spacing: 6px;
+      margin-bottom: 12px;
+    }
+
+    .top-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: linear-gradient(135deg, #EEF2FF, #F3E8FF);
+      color: #4F46E5;
+      padding: 10px 26px;
+      border-radius: 999px;
+      font-size: 22px;
+      font-weight: 800;
+      border: 2px solid #C7D2FE;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
+    }
+
+    .title {
+      font-size: 64px;
+      font-weight: 900;
+      line-height: 1.15;
+      background: linear-gradient(135deg, #1E1B4B 0%, #4338CA 55%, #DB2777 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      font-size: 30px;
+      font-weight: 700;
+      color: #475569;
+      margin-bottom: 22px;
+    }
+
+    .pills {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      font-size: 20px;
+      font-weight: 700;
+      padding: 8px 20px;
+      border-radius: 999px;
+    }
+    .pill-green { background: #ECFDF5; color: #047857; border: 1.5px solid #A7F3D0; }
+    .pill-blue  { background: #EFF6FF; color: #1D4ED8; border: 1.5px solid #BFDBFE; }
+    .pill-pink  { background: #FDF2F8; color: #BE185D; border: 1.5px solid #FBCFE8; }
+    .pill-amber { background: #FFFBEB; color: #B45309; border: 1.5px solid #FDE68A; }
+
+    /* 5 Stats Counter */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 16px;
+      margin-bottom: 34px;
+    }
+
+    .stat-card {
+      background: white;
+      border: 2px solid #E2E8F0;
+      border-radius: 24px;
+      padding: 20px 10px;
+      text-align: center;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.04);
+    }
+    .stat-card.s1 { border-color: #C7D2FE; background: #EEF2FF; }
+    .stat-card.s2 { border-color: #FBCFE8; background: #FDF2F8; }
+    .stat-card.s3 { border-color: #BAE6FD; background: #F0F9FF; }
+    .stat-card.s4 { border-color: #FDE68A; background: #FEFCE8; }
+    .stat-card.s5 { border-color: #A7F3D0; background: #ECFDF5; }
+
+    .stat-emoji {
+      font-size: 36px;
+      margin-bottom: 4px;
+    }
+
+    .stat-number {
+      font-size: 32px;
+      font-weight: 900;
+      color: #0F172A;
+      line-height: 1.1;
+    }
+
+    .stat-label {
+      font-size: 18px;
+      font-weight: 700;
+      color: #64748B;
+      margin-top: 4px;
+    }
+
+    /* Core Features */
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 30px;
+      font-weight: 800;
+      color: #1E293B;
+      margin-bottom: 18px;
+    }
+
+    .section-title span {
+      background: linear-gradient(135deg, #4F46E5, #9333EA);
+      color: white;
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+
+    .features-list {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-bottom: 34px;
+    }
+
+    .feat-card {
+      background: white;
+      border: 2px solid #E2E8F0;
+      border-radius: 26px;
+      padding: 24px 22px;
+      display: flex;
+      gap: 18px;
+      align-items: flex-start;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.03);
+    }
+
+    .feat-icon {
+      font-size: 38px;
+      width: 68px;
+      height: 68px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .fi-1 { background: #EEF2FF; }
+    .fi-2 { background: #FDF2F8; }
+    .fi-3 { background: #ECFDF5; }
+    .fi-4 { background: #FEF3C7; }
+
+    .feat-info h3 {
+      font-size: 24px;
+      font-weight: 800;
+      color: #0F172A;
+      margin-bottom: 6px;
+    }
+
+    .feat-info p {
+      font-size: 19px;
+      line-height: 1.45;
+      color: #475569;
+      font-weight: 500;
+    }
+
+    /* Ages Roadmap */
+    .roadmap-container {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 40px;
+    }
+
+    .age-card {
+      background: white;
+      border: 2px solid #CBD5E1;
+      border-radius: 22px;
+      padding: 20px 16px;
+    }
+
+    .age-pill {
+      font-size: 18px;
+      font-weight: 800;
+      padding: 5px 12px;
+      border-radius: 8px;
+      display: inline-block;
+      margin-bottom: 10px;
+    }
+    .ap-1 { background: #E0E7FF; color: #3730A3; }
+    .ap-2 { background: #FCE7F3; color: #9D174D; }
+    .ap-3 { background: #FEF3C7; color: #92400E; }
+    .ap-4 { background: #DCFCE7; color: #166534; }
+
+    .age-text {
+      font-size: 17px;
+      line-height: 1.5;
+      color: #334155;
+      font-weight: 500;
+    }
+
+    /* TikTok-Safe Call To Action Box (NO QR CODE, NO EXTERNAL URL) */
+    .tiktok-cta {
+      background: linear-gradient(135deg, #1E1B4B 0%, #4338CA 50%, #7C3AED 100%);
+      color: white;
+      border-radius: 32px;
+      padding: 34px 44px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 30px;
+      box-shadow: 0 16px 36px rgba(67, 56, 202, 0.35);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .cta-text h2 {
+      font-size: 38px;
+      font-weight: 900;
+      line-height: 1.25;
+      margin-bottom: 10px;
+    }
+
+    .cta-text p {
+      font-size: 23px;
+      color: #C7D2FE;
+      font-weight: 600;
+    }
+
+    .cta-guide-btn {
+      background: #FFFFFF;
+      color: #3730A3;
+      padding: 18px 34px;
+      border-radius: 24px;
+      text-align: center;
+      flex-shrink: 0;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    }
+
+    .cta-guide-btn .big-text {
+      font-size: 26px;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .cta-guide-btn .small-text {
+      font-size: 17px;
+      font-weight: 700;
+      color: #6366F1;
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="tiktok-canvas" id="tiktok-poster">
+    <div class="orb-1"></div>
+    <div class="orb-2"></div>
+    <div class="orb-3"></div>
+
+    <!-- Header -->
+    <div class="header">
+      <div class="mascots">🦉 🦊 🐼 🐰 🦄 🚀</div>
+      <div class="top-badge">⭐ เกมฝึกทักษะสองภาษา โตไปกับลูกคุณ</div>
+      <h1 class="title">เกมหนูน้อยอัจฉริยะ</h1>
+      <p class="subtitle">Little Genius Games — เล่นไป เก่งไป ทีละด่าน</p>
+
+      <div class="pills">
+        <span class="pill pill-green">✓ เล่นฟรี 100%</span>
+        <span class="pill pill-blue">✓ สองภาษา ไทย–อังกฤษ</span>
+        <span class="pill pill-pink">✓ ไม่มีโฆษณาคั่น</span>
+        <span class="pill pill-amber">✓ ไม่ต้องสมัครสมาชิก</span>
+      </div>
+    </div>
+
+    <!-- 5 Stats -->
+    <div class="stats-row">
+      <div class="stat-card s1">
+        <div class="stat-emoji">🎯</div>
+        <div class="stat-number">10,000</div>
+        <div class="stat-label">ด่านเล่นเพลิน</div>
+      </div>
+      <div class="stat-card s2">
+        <div class="stat-emoji">👶</div>
+        <div class="stat-number">6 วัย</div>
+        <div class="stat-label">1 ขวบ ถึง ป.4</div>
+      </div>
+      <div class="stat-card s3">
+        <div class="stat-emoji">🎨</div>
+        <div class="stat-number">44 ภาพ</div>
+        <div class="stat-label">ระบายสี + เปียโน</div>
+      </div>
+      <div class="stat-card s4">
+        <div class="stat-emoji">🗣️</div>
+        <div class="stat-number">108 คำ</div>
+        <div class="stat-label">คำศัพท์ภาพ</div>
+      </div>
+      <div class="stat-card s5">
+        <div class="stat-emoji">🎮</div>
+        <div class="stat-number">34 แบบ</div>
+        <div class="stat-label">10 โลกผจญภัย</div>
+      </div>
+    </div>
+
+    <!-- Features -->
+    <div class="section-title">
+      <span>★</span> จุดเด่นที่พ่อแม่และคุณครูวางใจ
+    </div>
+
+    <div class="features-list">
+      <div class="feat-card">
+        <div class="feat-icon fi-1">🔊</div>
+        <div class="feat-info">
+          <h3>ทุกการแตะมีเสียงอ่าน</h3>
+          <p>แตะตัวเลข ตัวอักษร สัตว์ หรือสี มีเสียงอ่านออกเสียงชัดเจน สลับได้ทั้งไทยและอังกฤษ</p>
+        </div>
+      </div>
+
+      <div class="feat-card">
+        <div class="feat-icon fi-2">🎨</div>
+        <div class="feat-info">
+          <h3>ห้องระบายสีจอใหญ่ & มุมอิสระ</h3>
+          <p>ระบายสี 44 ภาพ พู่กันรุ้ง ถังสีวิเศษ ตราประทับ เปียโน บันทึกผลงานลงเครื่องได้</p>
+        </div>
+      </div>
+
+      <div class="feat-card">
+        <div class="feat-icon fi-3">🧮</div>
+        <div class="feat-info">
+          <h3>คณิตศาสตร์ครบวงจร</h3>
+          <p>นับเลข, บวก ลบ คูณ หาร, เศษส่วน, ทศนิยม, การอ่านนาฬิกา และการนับเหรียญเงินบาทไทย</p>
+        </div>
+      </div>
+
+      <div class="feat-card">
+        <div class="feat-icon fi-4">📚</div>
+        <div class="feat-info">
+          <h3>ก–ฮ และ A–Z สองภาษา</h3>
+          <p>คำศัพท์ภาพ 8 หมวดหมู่, สระ วรรณยุกต์ไทย, คำตรงข้าม และแกรมม่าประโยคเบื้องต้น</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ages Roadmap -->
+    <div class="section-title">
+      <span>🚀</span> ผังเนื้อหาพัฒนาทักษะตามช่วงวัย
+    </div>
+
+    <div class="roadmap-container">
+      <div class="age-card">
+        <span class="age-pill ap-1">1–2 ขวบ (Baby)</span>
+        <div class="age-text">
+          • แตะฟังเลข 1–10<br>
+          • เสียงสัตว์ ผลไม้ ยานพาหนะ<br>
+          • รู้จักสีและรูปทรงง่ายๆ<br>
+          • แตะนับนิ้ว ไม่มีผิด
+        </div>
+      </div>
+
+      <div class="age-card">
+        <span class="age-pill ap-2">อนุบาล (Kindergarten)</span>
+        <div class="age-text">
+          • รู้จักเลขไทย ๑ ๒ ๓<br>
+          • พยัญชนะ ก–ฮ และ A–Z<br>
+          • บวก/ลบภาพง่ายๆ<br>
+          • จับคู่ภาพ & อ่านนาฬิกา
+        </div>
+      </div>
+
+      <div class="age-card">
+        <span class="age-pill ap-3">ป.1 – ป.2 (Grade 1-2)</span>
+        <div class="age-text">
+          • บวก-ลบหลักสิบและร้อย<br>
+          • เหรียญเงินบาทไทย<br>
+          • เศษส่วนเบื้องต้น (1/2, 1/4)<br>
+          • สระ วรรณยุกต์ คำตรงข้าม
+        </div>
+      </div>
+
+      <div class="age-card">
+        <span class="age-pill ap-4">ป.3 – ป.4 (Grade 3-4)</span>
+        <div class="age-text">
+          • ตารางคูณ-หารหลายหลัก<br>
+          • เศษส่วนบวกลบ & ทศนิยม<br>
+          • อักษรสามหมู่ & ชนิดของคำ<br>
+          • ไวยากรณ์อังกฤษพื้นฐาน
+        </div>
+      </div>
+    </div>
+
+    <!-- TikTok-Safe Call to Action: NO QR, NO URL -->
+    <div class="tiktok-cta">
+      <div class="cta-text">
+        <h2>เล่นได้ทันทีบนเว็บเบราว์เซอร์</h2>
+        <p>ไม่ต้องดาวน์โหลดแอป • ไม่ต้องสมัครสมาชิก • เล่นฟรี 100%</p>
+      </div>
+      <div class="cta-guide-btn">
+        <div class="big-text">
+          <span>👆</span> จิ้มลิงก์หน้าโปรไฟล์
+        </div>
+        <div class="small-text">หรือค้นหา "เกมหนูน้อยอัจฉริยะ"</div>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>
