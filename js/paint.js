@@ -35,10 +35,30 @@ const magicCSS=(kind,col)=>kind==='rainbow'?'linear-gradient(135deg,#ff5252,#ffb
   kind==='checker'?`conic-gradient(${col} 25%,#fff 0 50%,${col} 0 75%,#fff 0) 0 0/14px 14px`:kind==='glitter'?`radial-gradient(#fff 8%,transparent 10%) 0 0/8px 8px,${col}`:col;
 
 /* ---- small shared helpers ---- */
-const thumbCache={};
-function artThumb(i,size=150){
+const thumbCache={},boundsCache={};
+function artBounds(i){
+  if(boundsCache[i])return boundsCache[i];
+  const c=document.createElement('canvas');c.width=c.height=600;
+  const g=c.getContext('2d');g.lineWidth=9;g.lineCap=g.lineJoin='round';g.strokeStyle='#000';
+  ART[i][2](g);
+  const d=g.getImageData(0,0,600,600).data;
+  let x0=600,y0=600,x1=0,y1=0;
+  for(let y=0;y<600;y++)for(let x=0;x<600;x++)if(d[(y*600+x)*4+3]>20){if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y}
+  if(x1<=x0||y1<=y0)return boundsCache[i]={cx:300,cy:300,w:500,h:500};
+  return boundsCache[i]={cx:(x0+x1)/2,cy:(y0+y1)/2,w:x1-x0,h:y1-y0};
+}
+function drawArtFitted(g,i,W,H,ratio=.86){
+  const b=artBounds(i),sc=Math.min((W*ratio)/b.w,(H*ratio)/b.h);
+  g.save();
+  g.translate(W/2-b.cx*sc,H/2-b.cy*sc);
+  g.scale(sc,sc);
+  g.lineWidth=9/sc;g.lineCap=g.lineJoin='round';g.strokeStyle='#2b2d42';
+  ART[i][2](g);
+  g.restore();
+}
+function artThumb(i,size=180){
   const k=i+':'+size;if(thumbCache[k])return thumbCache[k];
-  const big=document.createElement('canvas');big.width=big.height=600;const g=big.getContext('2d');g.lineWidth=9;g.lineCap=g.lineJoin='round';g.strokeStyle='#2b2d42';ART[i][2](g);
+  const big=document.createElement('canvas');big.width=big.height=600;const g=big.getContext('2d');drawArtFitted(g,i,600,600,.86);
   const sm=document.createElement('canvas');sm.width=sm.height=size;const s=sm.getContext('2d');s.fillStyle='#fff';s.fillRect(0,0,size,size);s.drawImage(big,0,0,size,size);
   return thumbCache[k]=sm.toDataURL('image/png');
 }
@@ -94,12 +114,12 @@ function paintGallery(){
 /* ================= the drawing board ================= */
 function paintBoard(artIdx){
   theme(307);
-  const S=600;let art=artIdx,col=PAINT[0][0],tool=art<0?'brush':'fill',magic='solid',size=16,stamp=STAMPS[0],hist=[],drawing=false,last=null,hue=0,fills=0,praised=false,lastSpark=null;
+  let art=artIdx,col=PAINT[0][0],tool=art<0?'brush':'fill',magic='solid',size=16,stamp=STAMPS[0],hist=[],drawing=false,last=null,hue=0,fills=0,praised=false,lastSpark=null;
   const name=art>=0?ART[art][1]:B('กระดานเปล่า','Blank page'),icon=art>=0?ART[art][0]:'✏️';
-  app.innerHTML=roomTopP()+`<div class="card paintcard">
-  <div class="pbar"><button class="pbtn" id="pchg">🖼️ ${tx(B('เลือกภาพ','Pictures'))}</button><span class="ptitle">${icon} ${tx(name)}</span><button class="pbtn" id="pwk">🏆</button></div>
+  app.innerHTML=`<div class="card paintcard">
+  <div class="pbar"><button class="pbtn" id="pback">⬅</button><button class="pbtn" id="pchg">🖼️ ${tx(B('เลือกภาพ','Pictures'))}</button><span class="ptitle">${icon} ${tx(name)}</span><button class="pbtn" id="pwk">🏆</button>${langBtn()}</div>
   <div class="pmain">
-   <div class="cwrap"><canvas id="cp" width="${S}" height="${S}"></canvas><canvas id="cl" width="${S}" height="${S}"></canvas></div>
+   <div class="cwrap"><canvas id="cp"></canvas><canvas id="cl"></canvas></div>
    <div class="pctl">
     <div class="ppal">${PAINT.map((p,i)=>`<button class="sw2 ${i===0?'on':''}" data-i="${i}" style="background:${p[0]}" aria-label="${p[2]}"></button>`).join('')}</div>
     <div class="pmagic" id="pmagic">${MAGIC.map((m,i)=>`<button class="pm ${i===0?'on':''}" data-m="${m[0]}" title="${tx(m[2])}"><i style="background:${magicCSS(m[0],PAINT[0][0])}"></i></button>`).join('')}</div>
@@ -110,49 +130,54 @@ function paintBoard(artIdx){
    </div>
   </div></div>`;
   const cp=$('#cp'),cl=$('#cl'),wrap=document.querySelector('.cwrap');
+  const wr=wrap.getBoundingClientRect(),ar=(wr.width>20&&wr.height>20)?wr.width/wr.height:1;
+  const W=ar>=1?Math.round(600*ar):600;
+  const H=ar<1?Math.round(600/ar):600;
+  cp.width=cl.width=W;cp.height=cl.height=H;
   const g=cp.getContext('2d',{willReadFrequently:true}),gl=cl.getContext('2d',{willReadFrequently:true});
-  g.fillStyle='#fff';g.fillRect(0,0,S,S);g.lineCap=g.lineJoin='round';
-  if(art>=0){gl.lineWidth=9;gl.lineCap=gl.lineJoin='round';gl.strokeStyle='#2b2d42';ART[art][2](gl)}
+  g.fillStyle='#fff';g.fillRect(0,0,W,H);g.lineCap=g.lineJoin='round';
+  if(art>=0)drawArtFitted(gl,art,W,H,.86);
   cp.style.touchAction=cl.style.touchAction='none';
-  const lineData=art>=0?gl.getImageData(0,0,S,S).data:null;
+  const lineData=art>=0?gl.getImageData(0,0,W,H).data:null;
 
   const mark=()=>{
     document.querySelectorAll('.pt').forEach(b=>b.classList.toggle('on',b.dataset.t===tool));
-    $('#pmagic').style.display=tool==='fill'?'flex':'none';      // magic fills and brush sizes share one row
+    $('#pmagic').style.display=tool==='fill'?'grid':'none';      // magic fills and brush sizes share one row
     $('#psizes').style.display=tool==='fill'?'none':'flex';
     $('#pstamps').hidden=tool!=='stamp';
     document.querySelectorAll('.pm i').forEach((el,i)=>el.style.background=magicCSS(MAGIC[i][0],col));
   };
   mark();
-  const snap=()=>{hist.push(g.getImageData(0,0,S,S));if(hist.length>15)hist.shift()};
-  const pos=e=>{const r=cp.getBoundingClientRect();return[(e.clientX-r.left)*S/r.width,(e.clientY-r.top)*S/r.height]};
+  const snap=()=>{hist.push(g.getImageData(0,0,W,H));if(hist.length>15)hist.shift()};
+  const pos=e=>{const r=cp.getBoundingClientRect();return[(e.clientX-r.left)*W/r.width,(e.clientY-r.top)*H/r.height]};
 
   function burst(x,y,em){
     const r=cp.getBoundingClientRect(),w=wrap.getBoundingClientRect();
     for(let k=0;k<5;k++){const s=document.createElement('span');s.className='pspark';s.textContent=em||pick(['✨','⭐','💫']);
-      s.style.left=((x/S)*r.width+(r.left-w.left)+ri(-26,26))+'px';s.style.top=((y/S)*r.height+(r.top-w.top)+ri(-26,26))+'px';s.style.animationDelay=k*40+'ms';wrap.appendChild(s);setTimeout(()=>s.remove(),900)}
+      s.style.left=((x/W)*r.width+(r.left-w.left)+ri(-26,26))+'px';s.style.top=((y/H)*r.height+(r.top-w.top)+ri(-26,26))+'px';s.style.animationDelay=k*40+'ms';wrap.appendChild(s);setTimeout(()=>s.remove(),900)}
   }
   function flood(x0,y0){
     x0|=0;y0|=0;
-    const img=g.getImageData(0,0,S,S),d=img.data,line=lineData,rgb=hexRGB(col),fn=patternFn(magic,rgb),i0=(y0*S+x0)*4;
+    if(x0<0||x0>=W||y0<0||y0>=H)return false;
+    const img=g.getImageData(0,0,W,H),d=img.data,line=lineData,rgb=hexRGB(col),fn=patternFn(magic,rgb),i0=(y0*W+x0)*4;
     const sr=d[i0],sg=d[i0+1],sb=d[i0+2];
     if(line&&line[i0+3]>90)return false;                       // tapped on an outline
     if(magic==='solid'&&Math.abs(sr-rgb[0])+Math.abs(sg-rgb[1])+Math.abs(sb-rgb[2])<12&&!line)return false;
     const ok=line?(i=>line[i*4+3]<90):(i=>Math.abs(d[i*4]-sr)+Math.abs(d[i*4+1]-sg)+Math.abs(d[i*4+2]-sb)<60);
-    const seen=new Uint8Array(S*S),st=[y0*S+x0],fill=[];seen[y0*S+x0]=1;
+    const seen=new Uint8Array(W*H),st=[y0*W+x0],fill=[];seen[y0*W+x0]=1;
     while(st.length){
-      const i=st.pop(),x=i%S,y=(i/S)|0;fill.push(i);
+      const i=st.pop(),x=i%W,y=(i/W)|0;fill.push(i);
       if(x>0&&!seen[i-1]&&ok(i-1)){seen[i-1]=1;st.push(i-1)}
-      if(x<S-1&&!seen[i+1]&&ok(i+1)){seen[i+1]=1;st.push(i+1)}
-      if(y>0&&!seen[i-S]&&ok(i-S)){seen[i-S]=1;st.push(i-S)}
-      if(y<S-1&&!seen[i+S]&&ok(i+S)){seen[i+S]=1;st.push(i+S)}
+      if(x<W-1&&!seen[i+1]&&ok(i+1)){seen[i+1]=1;st.push(i+1)}
+      if(y>0&&!seen[i-W]&&ok(i-W)){seen[i-W]=1;st.push(i-W)}
+      if(y<H-1&&!seen[i+W]&&ok(i+W)){seen[i+W]=1;st.push(i+W)}
     }
     if(fill.length<20&&line)return false;
-    const put=i=>{const c=fn(i%S,(i/S)|0),o=i*4;d[o]=c[0];d[o+1]=c[1];d[o+2]=c[2];d[o+3]=255};
+    const put=i=>{const c=fn(i%W,(i/W)|0),o=i*4;d[o]=c[0];d[o+1]=c[1];d[o+2]=c[2];d[o+3]=255};
     fill.forEach(put);
     if(line)fill.forEach(i=>{ // grow one pixel under the outlines so no white halo is left
-      const x=i%S;
-      if(x>0&&!seen[i-1])put(i-1);if(x<S-1&&!seen[i+1])put(i+1);if(i>=S&&!seen[i-S])put(i-S);if(i<S*S-S&&!seen[i+S])put(i+S);
+      const x=i%W;
+      if(x>0&&!seen[i-1])put(i-1);if(x<W-1&&!seen[i+1])put(i+1);if(i>=W&&!seen[i-W])put(i-W);if(i<W*H-W&&!seen[i+W])put(i+W);
     });
     g.putImageData(img,0,0);return true;
   }
@@ -202,15 +227,16 @@ function paintBoard(artIdx){
   document.querySelectorAll('.ps').forEach(b=>b.onclick=()=>{size=+b.dataset.s;document.querySelectorAll('.ps').forEach(x=>x.classList.toggle('on',x===b));sTap()});
   document.querySelectorAll('.pst').forEach(b=>b.onclick=()=>{stamp=b.dataset.s;document.querySelectorAll('.pst').forEach(x=>x.classList.toggle('on',x===b));sTap()});
   $('#undo').onclick=()=>{const h=hist.pop();if(h)g.putImageData(h,0,0);sTap()};
-  $('#clr').onclick=()=>askConfirm(tx(B('ลบสีทั้งหมดแล้วเริ่มใหม่?','Clear all the colours?')),()=>{snap();g.fillStyle='#fff';g.fillRect(0,0,S,S)});
+  $('#clr').onclick=()=>askConfirm(tx(B('ลบสีทั้งหมดแล้วเริ่มใหม่?','Clear all the colours?')),()=>{snap();g.fillStyle='#fff';g.fillRect(0,0,W,H)});
   $('#pchg').onclick=()=>paintPick();
   $('#pwk').onclick=paintGallery;
   $('#pback').onclick=()=>paintPick();
   bindLang(()=>paintBoard(art));
 
   $('#done').onclick=()=>{
-    const full=document.createElement('canvas');full.width=full.height=S;const f=full.getContext('2d');f.drawImage(cp,0,0);f.drawImage(cl,0,0);
-    const sm=document.createElement('canvas');sm.width=sm.height=360;sm.getContext('2d').drawImage(full,0,0,360,360);
+    const full=document.createElement('canvas');full.width=W;full.height=H;const f=full.getContext('2d');f.drawImage(cp,0,0);f.drawImage(cl,0,0);
+    const sm=document.createElement('canvas');sm.width=sm.height=360;const sc=Math.min(360/W,360/H),sw=W*sc,sh=H*sc,sx=sm.getContext('2d');
+    sx.fillStyle='#fff';sx.fillRect(0,0,360,360);sx.drawImage(full,(360-sw)/2,(360-sh)/2,sw,sh);
     const img=sm.toDataURL('image/jpeg',.82),png=full.toDataURL('image/png');
     const ws=worksOf();ws.unshift({t:icon,img,ts:Date.now()});if(ws.length>20)ws.length=20;save();
     sWin();confetti();speak(B(`สวยมาก ${P().name}`,`Wonderful, ${P().name}!`));
