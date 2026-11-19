@@ -599,6 +599,13 @@
     /* ---------- Mobile-first: compact galaxy, list view, bottom sheet, FAB ---------- */
     @keyframes sheetin { from { transform: translateY(100%); } }
     .sheet-grab, .viewtog, .fab-wrap { display: none; }
+    .stage-size { display: none; }
+    .mzoom { display: none; position: absolute; z-index: 7; left: 12px; top: 0; align-items: center; gap: 4px;
+      padding: 4px; border-radius: 999px; background: rgba(16, 13, 46, .86); border: 1px solid rgba(170,160,255,.3); box-shadow: 0 6px 20px rgba(0,0,0,.45); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+    .mzoom button { height: 40px; min-width: 40px; padding: 0 8px; border-radius: 999px; border: 0; background: rgba(255,255,255,.07); color: #f3f1ff; font: inherit; font-size: 18px; font-weight: 600; cursor: pointer; }
+    .mzoom .zl { min-width: 54px; font-size: 13px; font-weight: 500; color: var(--mute); background: transparent; }
+    .mzoom.manual .zl { color: #ffd27a; }
+    .mzoom button:focus-visible { outline: 2px solid #ffd27a; outline-offset: 1px; }
     .planet .lbl { display: none; }
     .planet .hit { position: absolute; inset: -14px; border-radius: 50%; }
     @media (max-width: 860px) {
@@ -619,11 +626,17 @@
       .ticker { padding: 6px 10px; font-size: 12px; } .ticker .upd { display: none; }
       /* compact galaxy */
       html, body { overflow-x: hidden; }
-      body.view-galaxy .stage { overflow: hidden; display: block; position: relative; top: auto; bottom: auto; height: clamp(440px, calc(100svh - 236px), 700px); margin-top: 4px; }
+      body.view-galaxy .stage { overflow: hidden; display: block; position: relative; top: auto; bottom: auto; height: clamp(440px, calc(100svh - 236px), 700px); margin-top: 4px; touch-action: pan-x pan-y; }
+      body.view-galaxy .stage.mpan { overflow: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; scrollbar-width: none; }
+      body.view-galaxy .stage.mpan::-webkit-scrollbar { display: none; }
+      .stage-size { display: block; position: absolute; left: 0; top: 0; width: 1px; height: 1px; pointer-events: none; visibility: hidden; }
+      .stage.pinching { z-index: 6; }
+      body.view-galaxy .mzoom { display: inline-flex; }
+      body[data-panel="open"] .mzoom, body.chat-open .mzoom, body.modal-open .mzoom, body.plist-open .mzoom { display: none; }
       body.view-list .stage { display: none; }
       body.compact .card, body.compact #caps { display: none; }
       body.compact .planet .lbl { display: block; position: absolute; left: 50%; top: 50%; transform: translate(-50%, calc(50% + 8px)); z-index: 4; pointer-events: none;
-        padding: 2px 8px; border-radius: 999px; font-size: 11.5px; font-weight: 600; line-height: 1.5; white-space: nowrap; color: #f3f1ff;
+        padding: 1px 7px; border-radius: 999px; font-size: var(--mlf, 11px); font-weight: 600; line-height: 1.5; white-space: nowrap; color: #f3f1ff;
         background: rgba(10, 8, 34, .78); border: 1px solid color-mix(in srgb, var(--c) 45%, transparent); box-shadow: 0 2px 10px rgba(0,0,0,.4); }
       body.compact .planet.is-alert .lbl { border-color: rgba(255, 84, 104, .7); }
       body.compact .sun-hit .ask { font-size: 10.5px; bottom: -12px; padding: 2px 8px; }
@@ -719,6 +732,7 @@
   </header>
 
   <main class="stage" id="stage" aria-label="แผนที่ดาว">
+    <div class="stage-size" id="stageSize" aria-hidden="true"></div>
     <div class="galaxy" id="galaxy" aria-hidden="true"><div class="core-glow"></div><div class="disc" id="disc"><canvas id="galaxyCv" width="900" height="900"></canvas></div></div>
     <svg id="net" aria-hidden="true"><defs id="netDefs">
       <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
@@ -734,6 +748,11 @@
     <div id="planets"></div>
   </main>
 
+  <div class="mzoom" id="mZoom" role="group" aria-label="ขนาดดาว (มือถือ)">
+    <button type="button" id="mzOut" aria-label="ย่อดาว" title="ย่อ">−</button>
+    <button type="button" id="mzLbl" class="zl" aria-label="กลับเป็นขนาดอัตโนมัติ" title="กดเพื่อกลับเป็นขนาดอัตโนมัติ">68%</button>
+    <button type="button" id="mzIn" aria-label="ขยายดาว" title="ขยาย">+</button>
+  </div>
   <nav class="mobile" id="mobile" aria-label="รายการงาน">
     <div class="m-sun glass" data-open-chat role="button" tabindex="0" aria-label="ถามผู้ช่วย AI" style="cursor:pointer">
       <div class="sun" aria-hidden="true"><div class="sun-halo"></div><div class="sun-pulse"></div><div class="sun-pulse p2"></div><div class="sun-core"></div></div>
@@ -1199,6 +1218,12 @@
        so 100% looks like the browser zoomed out to ~60%. Big screens and phones are unchanged. ?nozoomfit turns it off. */
     const ZF = { W: 2360, H: 1000, MIN: 0.4, MAX: 1.6, UMIN: 0.5, UMAX: 1.6, KEY: "space_zoom_user" };
     state.zu = (function () { try { const v = Number(localStorage.getItem(ZF.KEY)); return v >= ZF.UMIN && v <= ZF.UMAX ? v : 1; } catch (e) { return 1; } })();
+    /* Mobile (≤860px): planets default to ~68% of the old size; − / + and pinch change a separate factor (space_zoom_user_m).
+       Above 1 the galaxy canvas grows past the screen and the stage scrolls (pan) instead of overlapping. */
+    const MZ = { AUTO: 0.68, KEY: "space_zoom_user_m" };
+    state.mzu = (function () { try { const v = Number(localStorage.getItem(MZ.KEY)); return v >= ZF.UMIN && v <= ZF.UMAX ? v : 1; } catch (e) { return 1; } })();
+    { const q = Number(params.get("mz")); if (q >= ZF.UMIN && q <= ZF.UMAX) state.mzu = q; }
+    const mobF_ = () => MZ.AUTO * (state.mzu || 1);
     function applyZoomFit_() {
       const html = document.documentElement, vw = window.innerWidth, vh = window.innerHeight;
       let s = 1;
@@ -1208,6 +1233,8 @@
       s = Math.round(s * 1000) / 1000;
       const zl = $("zoomLbl"); if (zl) zl.textContent = Math.round(s * 100) + "%";
       const zc = $("zoomCtl"); if (zc) zc.classList.toggle("manual", Math.abs((state.zu || 1) - 1) > 0.001);
+      const ml = $("mzLbl"); if (ml) ml.textContent = Math.round(mobF_() * 100) + "%";
+      const mc = $("mZoom"); if (mc) mc.classList.toggle("manual", Math.abs((state.mzu || 1) - 1) > 0.001);
       const on = Math.abs(s - 1) > 0.004;
       state.zf = on ? s : 1;
       html.classList.toggle("zfit", on);
@@ -1234,6 +1261,15 @@
       stage.style.top = top + "px";
       stage.style.bottom = bottom + "px";
     }
+    /* the mobile zoom pill sits on the stage's bottom-left corner (scrolls with the page, not with a panned galaxy) */
+    function placeMZoom_() {
+      const mz = $("mZoom");
+      if (!mz) return;
+      if (!state.compact) { mz.style.top = ""; mz.style.left = ""; return; }
+      const op = mz.offsetParent || document.body, ob = op.getBoundingClientRect(), sb = stage.getBoundingClientRect();
+      mz.style.left = Math.round(sb.left - ob.left + 10) + "px";
+      mz.style.top = Math.round(sb.bottom - ob.top - (mz.offsetHeight || 50) - 10) + "px";
+    }
     function chromeBoxes_() {
       const sb = stage.getBoundingClientRect();
       const z = state.zf || 1;
@@ -1249,6 +1285,7 @@
       };
       add(document.querySelector("header.top"), 6);
       add(document.querySelector("footer.legend"), 6);
+      if (state.compact && !state.mPan) { add($("mZoom"), 6); add(document.querySelector(".fab-wrap"), 6); }
       return boxes;
     }
     function circleHitsRect_(cx, cy, r, box) {
@@ -1264,8 +1301,24 @@
     function computeGeom() {
       applyZoomFit_();
       fitStageToChrome_();
-      const W = stage.clientWidth, H = stage.clientHeight;
+      let W = stage.clientWidth, H = stage.clientHeight;
       if (!W || !H) return null;
+      const mf = mobF_(), ext = state.compact ? Math.max(1, state.mzu || 1) : 1;
+      const wasPan = !!state.mPan;
+      state.mPan = ext > 1.001;
+      placeMZoom_();
+      stage.classList.toggle("mpan", state.mPan);
+      const sz = $("stageSize");
+      if (state.compact) {
+        W = Math.round(W * ext); H = Math.round(H * ext);
+        if (sz) { sz.style.width = W + "px"; sz.style.height = H + "px"; }
+        net.style.width = W + "px"; net.style.height = H + "px";
+        if (state.mPan && !wasPan) { stage.scrollLeft = Math.max(0, (W - stage.clientWidth) / 2); stage.scrollTop = Math.max(0, (H - stage.clientHeight) / 2); }
+        document.documentElement.style.setProperty("--mlf", Math.max(10, Math.min(12.5, 11 * Math.pow(mf / MZ.AUTO, 0.35))).toFixed(2) + "px");
+      } else {
+        if (sz) { sz.style.width = ""; sz.style.height = ""; }
+        net.style.width = ""; net.style.height = "";
+      }
       const rings = [...new Set(PLANETS.map((p) => p.ringIdx))].sort();
       const nR = rings.length;
       let rxMax, k, fr, sunS, tilt = TILT;
@@ -1278,6 +1331,7 @@
         fr = nR >= 4 ? [0.46, 0.64, 0.82, 1.0] : [0.52, 0.76, 1.0];
         rings.forEach((r, i) => { radii[r] = { rx: rxMax * fr[i], ry: rxMax * fr[i] * k }; });
         sunS = Math.max(76, Math.min(104, H * 0.16, radii[rings[0]].ry * 1.35));
+        sunS = Math.round(Math.max(54, sunS * Math.min(1.3, 0.62 + 0.24 * (state.mzu || 1))));
       } else {
         const padX = short ? 88 : 130;
         const padY = short ? 28 : 48;
@@ -1288,7 +1342,8 @@
         rings.forEach((r, i) => { radii[r] = { rx: rxMax * fr[i], ry: rxMax * fr[i] * k }; });
         sunS = Math.max(short ? 90 : 108, Math.min(154, H * 0.26, W * 0.13));
       }
-      const g = { W, H, cx: W / 2, cy: H / 2 + (state.compact ? 0 : 4), radii, k, sunS, rings, tilt, short: short, chrome: chromeBoxes_() };
+      const g = { W, H, cx: W / 2, cy: H / 2 + (state.compact ? 0 : 4), radii, k, sunS, rings, tilt, short: short, chrome: chromeBoxes_(),
+        dMin: state.compact ? Math.max(24, Math.round(40 * mf)) : 56, dMax: state.compact ? Math.round(110 * mf) : 110, hiCap: state.compact ? 1 : 1.15 };
       seedThetas_(g);
       const sun = $("sun"); sun.style.setProperty("--s", sunS + "px"); sun.style.left = g.cx + "px"; sun.style.top = g.cy + "px";
       const hit = $("sunHit"); hit.style.width = hit.style.height = sunS + "px"; hit.style.left = g.cx + "px"; hit.style.top = g.cy + "px";
@@ -1305,8 +1360,8 @@
       const cv = $("galaxyCv"); const gs = Math.round(rxMax * 2.35); cv.style.width = gs + "px"; cv.style.height = gs + "px";
       PLANETS.forEach((p) => {
         const n = Number((pdata(p.id) || {}).count) || 0;
-        const base = state.compact ? (58 + Math.min(10, Math.sqrt(n) * 1.5)) : (70 + Math.min(16, Math.sqrt(n) * 2));
-        p.desD = Math.max(56, Math.min(110, base));
+        const base = state.compact ? (58 + Math.min(10, Math.sqrt(n) * 1.5)) * mf : (70 + Math.min(16, Math.sqrt(n) * 2));
+        p.desD = state.compact ? Math.max(g.dMin, Math.min(g.dMax, base)) : Math.max(56, Math.min(110, base));
       });
       resolveGalaxy_(g, true);
       PLANETS.forEach((p) => {
@@ -1420,12 +1475,13 @@
       const GAP = 16;
       const apply = (scale) => {
         PLANETS.forEach((p) => {
-          p.d = Math.round(Math.max(56, Math.min(110, p.desD * scale)));
+          p.d = Math.round(Math.max(g.dMin || 56, Math.min(g.dMax || 110, p.desD * scale)));
         });
       };
-      let lo = 56 / Math.max(...PLANETS.map((p) => p.desD), 56);
-      let hi = 110 / Math.max(...PLANETS.map((p) => p.desD), 56);
-      hi = Math.min(1.15, hi);
+      const dMin = g.dMin || 56, dMax = g.dMax || 110;
+      let lo = dMin / Math.max(...PLANETS.map((p) => p.desD), dMin);
+      let hi = dMax / Math.max(...PLANETS.map((p) => p.desD), dMin);
+      hi = Math.min(g.hiCap || 1.15, hi);
       lo = Math.max(0.55, lo);
       let bestScale = lo, bestBad = 1e9;
       const tryScale = (sc) => {
@@ -1447,7 +1503,7 @@
         }
         PLANETS.forEach((p) => { p.d = p._okD; p.theta = p._okTheta; });
         if (bestBad > 0.5) {
-          const sunMin = state.compact ? 68 : (g.short ? 80 : 96);
+          const sunMin = state.compact ? Math.min(g.sunS, 50) : (g.short ? 80 : 96);
           while (bestBad > 0.5 && g.sunS > sunMin) {
             g.sunS -= 4;
             $("sun").style.setProperty("--s", g.sunS + "px");
@@ -2652,6 +2708,52 @@
     $("zoomOut").addEventListener("click", () => setZoomUser_((state.zu || 1) / 1.1));
     $("zoomIn").addEventListener("click", () => setZoomUser_((state.zu || 1) * 1.1));
     $("zoomLbl").addEventListener("click", () => setZoomUser_(1));
+    function setZoomUserM_(f, anchor) {
+      const old = state.mzu || 1;
+      state.mzu = Math.max(ZF.UMIN, Math.min(ZF.UMAX, Math.round(f * 100) / 100));
+      try { if (Math.abs(state.mzu - 1) < 0.001) localStorage.removeItem(MZ.KEY); else localStorage.setItem(MZ.KEY, String(state.mzu)); } catch (e) {}
+      // keep the point under the fingers (or the centre) in view after the canvas grows/shrinks
+      const vw = stage.clientWidth, vh = stage.clientHeight, ax = anchor ? anchor.x : vw / 2, ay = anchor ? anchor.y : vh / 2;
+      const fx = (stage.scrollLeft + ax) / Math.max(1, vw * Math.max(1, old)), fy = (stage.scrollTop + ay) / Math.max(1, vh * Math.max(1, old));
+      applyZoomFit_(); relayout_();
+      const e2 = Math.max(1, state.mzu);
+      stage.scrollLeft = Math.max(0, fx * vw * e2 - ax); stage.scrollTop = Math.max(0, fy * vh * e2 - ay);
+    }
+    $("mzOut").addEventListener("click", () => setZoomUserM_((state.mzu || 1) / 1.15));
+    $("mzIn").addEventListener("click", () => setZoomUserM_((state.mzu || 1) * 1.15));
+    $("mzLbl").addEventListener("click", () => setZoomUserM_(1));
+    window.__setZoomUserM = setZoomUserM_;
+    try { new ResizeObserver(() => placeMZoom_()).observe(document.body); } catch (e) {}
+    window.addEventListener("resize", placeMZoom_);
+    /* Pinch on the galaxy (mobile): live preview with a CSS scale, then one relayout at gesture end (no overlaps). */
+    (function () {
+      let p0 = null, ratio = 1, lastPinch = 0;
+      const dist = (t) => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
+      stage.addEventListener("touchstart", (e) => {
+        if (!state.compact || e.touches.length !== 2) return;
+        const sb = stage.getBoundingClientRect();
+        const mx = (e.touches[0].clientX + e.touches[1].clientX) / 2 - sb.left, my = (e.touches[0].clientY + e.touches[1].clientY) / 2 - sb.top;
+        p0 = { d: dist(e.touches), z: state.mzu || 1, x: mx, y: my }; ratio = 1; stage.classList.add("pinching");
+      }, { passive: true });
+      stage.addEventListener("touchmove", (e) => {
+        if (!p0 || e.touches.length !== 2) return;
+        e.preventDefault();
+        ratio = Math.max(ZF.UMIN / p0.z, Math.min(ZF.UMAX / p0.z, dist(e.touches) / (p0.d || 1)));
+        stage.style.transformOrigin = p0.x.toFixed(0) + "px " + p0.y.toFixed(0) + "px";
+        stage.style.scale = ratio.toFixed(3);
+        const ml = $("mzLbl"); if (ml) ml.textContent = Math.round(MZ.AUTO * p0.z * ratio * 100) + "%";
+      }, { passive: false });
+      const end = (e) => {
+        if (!p0 || (e.touches && e.touches.length >= 2)) return;
+        stage.style.scale = ""; stage.style.transformOrigin = "";
+        stage.classList.remove("pinching");
+        const z0 = p0.z, anchor = { x: p0.x, y: p0.y }; p0 = null;
+        if (Math.abs(ratio - 1) > 0.03) { lastPinch = Date.now(); setZoomUserM_(z0 * ratio, anchor); } else applyZoomFit_();
+      };
+      stage.addEventListener("touchend", end); stage.addEventListener("touchcancel", end);
+      // a pinch must not also open a planet
+      stage.addEventListener("click", (e) => { if (Date.now() - lastPinch < 450) { e.stopPropagation(); e.preventDefault(); } }, true);
+    })();
     window.__setZoomUser = setZoomUser_;
     /* ---------- Planet list sidebar (left) ---------- */
     const PL_KEY = "space_plist_open";
