@@ -37,7 +37,7 @@
     .wrap { position: relative; max-width: 1280px; margin: 0 auto; padding: 20px 22px 40px; }
     .top { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 18px; }
     .btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; height: 38px; padding: 0 14px; border-radius: 11px; border: 1px solid var(--line);
-      background: var(--surface2); color: var(--ink); font: inherit; font-size: 13.5px; cursor: pointer; text-decoration: none; transition: background .2s, border-color .2s; }
+      background: var(--surface2); color: var(--ink); font: inherit; font-size: 13.5px; cursor: pointer; text-decoration: none; white-space: nowrap; transition: background .2s, border-color .2s; }
     .btn:hover { background: rgba(70, 62, 150, .7); border-color: rgba(190, 180, 255, .35); }
     .btn.primary { border: 0; color: #160f00; background: linear-gradient(135deg, #ffe08a, #ffb547); }
     .btn:focus-visible, input:focus-visible, select:focus-visible, th:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
@@ -50,7 +50,7 @@
     h1 { margin: 0; font-size: 22px; font-weight: 600; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
     .badge { font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 999px; color: #1b1300; background: linear-gradient(90deg, #ffd66b, #ffb547); }
     .badge[hidden] { display: none; }
-    .btn[hidden], #openMap[hidden] { display: none !important; }
+    .btn[hidden], #openMap[hidden], #openRaug[hidden] { display: none !important; }
     .sub { font-size: 13px; color: var(--mute); margin-top: 2px; }
     .actions { display: flex; gap: 8px; flex-wrap: wrap; }
     .glass { background: linear-gradient(180deg, rgba(36, 32, 84, .72), rgba(22, 20, 58, .72)); border: 1px solid var(--line); border-radius: 16px;
@@ -185,6 +185,7 @@
       <div class="actions">
         <button type="button" class="btn" id="refresh"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M13.5 8a5.5 5.5 0 11-1.6-3.9M13.5 2.5v3h-3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>รีเฟรชดาวนี้</button>
         <a class="btn" id="openMap" href="https://script.google.com/macros/s/AKfycbx2a6HTC9zaD8gvZY9Y0xDsLq9_C5Itey08AuxE9LFHZHnAblTEQkI_-mhgqppkfzqc/exec?page=map" target="_blank" rel="noopener" hidden>🗺️ เปิด Map</a>
+        <a class="btn" id="openRaug" href="https://script.google.com/macros/s/AKfycbxBAlgZXLcyko-DhbHWElB6U_DOEXQ-MyNOQDINnmNYWP6ajiZ26fLvKSBfVj1heboL/exec?p=Dashboard" target="_blank" rel="noopener" hidden>📊 RAUG Dash</a>
         <a class="btn primary" id="sheet" target="_blank" rel="noopener"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="2.5" y="2.5" width="11" height="11" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M2.5 6.5h11M2.5 10h11M6.5 6.5v7" stroke="currentColor" stroke-width="1.3"/></svg>เปิดชีต</a>
       </div>
     </div>
@@ -324,7 +325,7 @@
     const JOB = ENV.job || params.get("job") || params.get("dash") || decodeURIComponent(location.pathname.replace(/^.*\/dash\/?/, "").replace(/\/$/, "")) || "checkin";
     const META = {
       checkin: ["Check In", "#34e0b4"], huato: ["บอทหัวต่อ", "#ff9b54"], ofc: ["True RAUG OFC", "#ff6b7a"], budget: ["Budget PE ค้างกำหนด", "#ffc94d"],
-      fttx: ["Block FTTx", "#ff6fd8"], planwork: ["Planwork", "#5ee1ff"], pat: ["รอเล่ม Pat", "#8f7bff"], quota: ["Quota OFC 2026", "#ff8a3d"], progress: ["Progress RAUG 2026", "#7dff8a"], meetings: ["นัดประชุมการไฟฟ้า", "#4aa3ff"], notes: ["บันทึกประชุม", "#c08cff"], links: ["แหล่งเก็บข้อมูล", "#00f0ff"], contacts: ["ข้อมูลติดต่อ", "#ff9bd2"]
+      fttx: ["Block FTTx", "#ff6fd8"], planwork: ["Planwork", "#5ee1ff"], pat: ["รอเล่ม Pat", "#8f7bff"], quota: ["Quota OFC 2026", "#ff8a3d"], progress: ["Progress RAUG 2026", "#7dff8a"], eec: ["Improvement EEC&NANO 2026", "#46d6ff"], meetings: ["นัดประชุมการไฟฟ้า", "#4aa3ff"], notes: ["บันทึกประชุม", "#c08cff"], links: ["แหล่งเก็บข้อมูล", "#00f0ff"], contacts: ["ข้อมูลติดต่อ", "#ff9bd2"]
     };
     const PAL = ["#7ad7ff", "#ffcf5c", "#3ee6a8", "#ff6fd8", "#8f9bff", "#ff9b54", "#ff6b7a", "#c08cff", "#9dff6a", "#4aa3ff"];
     let DATA = null;
@@ -338,15 +339,24 @@
         return fetch("/api/refresh/" + encodeURIComponent(JOB), { method: "POST" }).then((r) => r.json());
       }
     };
+    const POP = params.get("pop") === "1" || /(^|&)pop=1(&|$)/.test(ENV.qs || "");
+    function toHost(msg) { let w = window; for (let i = 0; i < 5 && w !== w.parent; i++) { w = w.parent; try { w.postMessage(msg, "*"); } catch (e) {} } }
+    if (POP) document.documentElement.classList.add("pop");
     const back = $("back");
     if (IS_GAS) { back.href = ENV.base; back.target = "_top"; }
     else if (IS_PAGES) { back.href = "index.html"; back.target = "_self"; }
     else if (IS_EMBED) back.href = "mockup.html";
     else back.href = "/";
     back.href += (IS_GAS || IS_PAGES ? "?panel=" : (back.href.includes("?") ? "&" : "?") + "panel=") + encodeURIComponent(JOB);
+    if (POP) {
+      back.addEventListener("click", (e) => { e.preventDefault(); toHost({ type: "dash-close" }); });
+      document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !/^(INPUT|SELECT|TEXTAREA)$/.test((document.activeElement || {}).tagName || "")) toHost({ type: "dash-close" }); });
+      const bl = back.querySelector("span") || back; if (bl.childNodes.length) { const t = [...back.childNodes].find((n) => n.nodeType === 3 && n.textContent.trim()); if (t) t.textContent = " ปิด Dashboard"; }
+    }
 
     /* ---------- SVG charts ---------- */
     const fmt = (n) => Number(n || 0).toLocaleString("th-TH");
+    const fmtB = (x) => { const n = Number(x) || 0, a = Math.abs(n); if (a >= 1e6) return (n / 1e6).toLocaleString("th-TH", { maximumFractionDigits: 2 }) + " ลบ."; if (a >= 1e3) return n.toLocaleString("th-TH", { maximumFractionDigits: 0 }) + " บ."; return n.toLocaleString("th-TH", { maximumFractionDigits: 2 }) + " บ."; };
     function barChart(items, opt = {}) {
       if (!items.length || !items.some((x) => x.value)) return `<div class="empty">ยังไม่มีข้อมูล</div>`;
       const W = 640, H = opt.h || 230, pl = 30, pb = opt.sub ? 40 : 28, pt = 18;
@@ -500,7 +510,7 @@
           const c = cfg.cols.find((x) => x.k === st.sort);
           rows = rows.slice().sort((a, b) => { const A = c && c.sortv ? c.sortv(a) : a[st.sort], B = c && c.sortv ? c.sortv(b) : b[st.sort]; return (typeof A === "number" && typeof B === "number" ? A - B : String(A || "").localeCompare(String(B || ""), "th")) * st.dir; });
         }
-        $("tb").innerHTML = rows.length ? rows.slice(0, 600).map((r) => `<tr>${cfg.cols.map((c) => `<td class="${c.num ? "num" : ""}">${c.render ? c.render(r) : esc(r[c.k])}</td>`).join("")}</tr>`).join("")
+        $("tb").innerHTML = rows.length ? rows.slice(0, 3000).map((r) => `<tr>${cfg.cols.map((c) => `<td class="${c.num ? "num" : ""}">${c.render ? c.render(r) : esc(r[c.k])}</td>`).join("")}</tr>`).join("")
           : `<tr><td colspan="${cfg.cols.length}" class="empty">ไม่พบรายการ</td></tr>`;
         $("tcount").textContent = `${rows.length.toLocaleString("th-TH")} จาก ${cfg.rows.length.toLocaleString("th-TH")} รายการ`;
         el.querySelectorAll("th").forEach((th) => th.setAttribute("aria-sort", th.dataset.k === st.sort ? (st.dir > 0 ? "ascending" : "descending") : "none"));
@@ -540,11 +550,34 @@
           cols: [{ k: "eas", label: "EAS" }, { k: "ugrl", label: "UGRL" }, { k: "project", label: "โครงการ" }, { k: "province", label: "จังหวัด" }, { k: "cut_date", label: "กำหนดตัด", num: true }, { k: "days_over", label: "เลย", num: true, render: (r) => daysChip(r.days_over) }, { k: "status", label: "สถานะ" }] });
       },
       budget(d) {
-        const rows = d.rows || [];
-        kpis((d.metrics || []).map((m) => ({ label: m.label, value: m.value, tone: m.tone })).concat([{ label: "ผู้รับผิดชอบ", value: new Set(rows.map((r) => r.owner).filter(Boolean)).size }]));
-        charts(card("เลย Target Date มากี่วัน", "จำนวนงาน", barChart(buckets(rows, "days_over"), { id: "b" })) + card("แยกตามสถานะ", "", donut(countBy(rows, "status").map((x) => ({ label: x.label, value: x.value })), { unit: "งาน" })));
-        table({ title: "งาน Budget PE ที่ค้างกำหนด", rows, filter: { k: "owner", label: "ผู้รับผิดชอบ" }, sort: "days_over", dir: -1,
-          cols: [{ k: "no", label: "No." }, { k: "ugrl", label: "UGRL" }, { k: "province", label: "จังหวัด" }, { k: "project", label: "โครงการ" }, { k: "status", label: "สถานะ" }, { k: "owner", label: "ผู้รับผิดชอบ" }, { k: "target", label: "Target", num: true }, { k: "days_over", label: "เลย", num: true, render: (r) => daysChip(r.days_over) }] });
+        const rows = d.rows || [], st = d.by_status || [], bk = d.buckets || {}, tot = d.totals || {}, ot = d.open_totals || {};
+        const bItem = (label, rec, color) => ({ label, value: (rec && rec.n) || 0, sub: rec && rec.n ? fmtN(rec.km) + " km" : "", color });
+        kpis((d.metrics || []).map((m) => ({ label: m.label, value: m.value, tone: m.tone })).concat([
+          { label: "ครบใน 7 วัน", value: d.due_7_count || 0, tone: d.due_7_count ? "watch" : "" },
+          { label: "เสร็จ / ยกเลิก / รอเล่ม Pat", value: (d.done_count || 0) + " / " + (d.cancel_count || 0) + " / " + (d.pat_count || 0) },
+          { label: "งานเปิด · สาย (km)", value: (d.open_count || 0) + " · " + fmtN(ot.km) },
+          { label: "Service / OFC งานเปิด (บ.)", value: fmtB(ot.service) + " · " + fmtB(ot.ofc) },
+          { label: "มูลค่ารวมทั้งแท็บ Service + OFC", value: fmtB((tot.service || 0) + (tot.ofc || 0)) }
+        ]));
+        charts(card("แยกตามกำหนด Target Date", "งานเปิด (ไม่นับรอเล่ม Pat)", barChart([
+            bItem("เลยกำหนด", bk.overdue, "#ff6b7a"), bItem("7 วัน", bk.due7, "#ffb547"),
+            bItem("30 วัน", bk.due30, "#ffcf5c"), bItem("หลังจากนี้", bk.later, "#7ad7ff"),
+            bItem("No plan", bk.no_plan, "#c08cff")
+          ], { id: "bb", sub: true })) +
+          card("งานเปิดแยกตามสถานะ", "จำนวนงาน", donut(st.filter((s) => s.open).map((s) => ({ label: s.status, value: s.n })), { unit: "งาน" })));
+        /* full list: every row of RAUG (open + done/cancel/รอเล่ม Pat), grouped by Target bucket; overdue first */
+        const GRP = { overdue: "เลยกำหนด", due7: "ครบใน 7 วัน", due30: "ครบใน 30 วัน", later: "หลังจากนี้", no_plan: "No plan", pat: "รอเล่ม Pat", done: "เสร็จสิ้น" };
+        const ORDER = { overdue: 0, due7: 1, due30: 2, later: 3, no_plan: 4, pat: 5, done: 6, cancel: 7 };
+        const TONE = { overdue: "alert", due7: "watch", no_plan: "watch", done: "ok" };
+        const base = (d.open_rows && d.open_rows.length) ? d.open_rows.concat(d.closed_rows || []) : rows.concat(d.due7_rows || [], d.no_plan_rows || []);
+        const all = base.filter((r) => r.bucket !== "cancel" && !/ยกเลิก/.test(r.status || "")).map((r) => Object.assign({}, r, { grp: GRP[r.bucket] || r.bucket || "", ord: ORDER[r.bucket] != null ? ORDER[r.bucket] : 9 }))
+          .sort((a, b) => a.ord - b.ord || (b.days_over || 0) - (a.days_over || 0) || (a.days_until || 0) - (b.days_until || 0) || (a.row_num || 0) - (b.row_num || 0));
+        table({ title: "งาน Budget PE ทั้งหมด " + all.length + " งาน (เปิด " + (d.open_count || 0) + " · เลยกำหนด " + (d.overdue_count || 0) + ")", rows: all,
+          filters: [{ k: "grp", label: "กำหนด" }, { k: "status", label: "สถานะ" }, { k: "province", label: "จังหวัด" }],
+          cols: [{ k: "grp", label: "กำหนด", render: (r) => `<span class="chip ${TONE[r.bucket] || ""}">${esc(r.grp)}</span>`, sortv: (r) => r.ord },
+            { k: "no", label: "No." }, { k: "ugrl", label: "UGRL" }, { k: "province", label: "จังหวัด" }, { k: "project", label: "โครงการ" }, { k: "status", label: "สถานะ" }, { k: "owner", label: "ผู้รับผิดชอบ" },
+            { k: "km", label: "km", num: true, render: (r) => fmtN(r.km) }, { k: "service", label: "Service", num: true, render: (r) => fmtB(r.service) }, { k: "ofc", label: "OFC", num: true, render: (r) => fmtB(r.ofc) },
+            { k: "target", label: "Target", num: true }, { k: "days_over", label: "เลย", num: true, render: (r) => r.days_over ? daysChip(r.days_over) : "" }] });
       },
 
       planwork(d) {
@@ -646,6 +679,45 @@
           line("Plan", ms.map((m) => m.plan), "plan") + line("Actual (RAUG + Improvement)", ms.map((m) => m.actual), "act") +
           sec("raug", "RAUG") + sec("imp", "Improvement") + sec("oos", "Out of Scope (ไม่นับใน %)") + `</tbody></table></div>`;
       },
+      eec(d) {
+        const cab = d.cable || {}, stages = d.by_stage || [];
+        kpis([
+          { label: "ค้างตัด / งานทั้งหมด", value: (d.remaining || 0) + " / " + (d.jobs_total || 0), tone: d.status === "alert" ? "alert" : (d.remaining ? "watch" : "ok") },
+          { label: "ตัด Cutover แล้ว", value: d.cutover_done || 0, tone: "ok" },
+          { label: "ระยะรวม (กม.)", value: fmtN(d.sum_km) },
+          { label: "มูลค่า (บาท)", value: fmtB(d.sum_cost) },
+          { label: "ดึงสายได้", value: fmtN(d.dist_pulled) + " / " + fmtN(d.dist_total) + " กม. (" + fmtN(d.pull_pct, 1) + "%)", tone: d.pull_pct >= 80 ? "ok" : "watch" },
+          { label: "เลยกำหนด Cutover", value: (d.overdue_cutover || []).length, tone: (d.overdue_cutover || []).length ? "alert" : "ok" }
+        ]);
+        let html = card("สถานะงาน", "ขั้นตอน", donut(stages.map((s) => ({ label: s.name, value: s.n })), { unit: "งาน" })) +
+          card("สายแยกตามขนาดแกน (กม.)", "", barChart(["24C", "60C", "120C", "216C"].filter((k) => cab[k]).map((k) => ({ label: k, value: cab[k] })), { id: "ecab" }));
+        if ((d.by_project || []).length) html += card("แยกตามโครงการ", "งานค้างตัด", hbar((d.by_project || []).map((s) => ({ label: s.name, value: s.remaining || 0 })), { label: "ค้างตัด" }));
+        if ((d.by_sub || []).length) html += card("แยกตาม SUB", "งานค้างตัด", hbar((d.by_sub || []).map((s) => ({ label: s.name, value: s.remaining || s.n })), { label: "งาน" }));
+        if ((d.upcoming || []).length) {
+          html += `<div class="glass chart"><h3>กำหนดใน 14 วัน</h3><div class="scroll"><table><thead><tr><th>วันที่</th><th>งาน</th><th>ไซต์</th><th class="num">กม.</th><th class="num">มูลค่า</th></tr></thead><tbody>` +
+            d.upcoming.map((r) => `<tr><td>${esc(r.date)}</td><td>${esc(r.kind)}</td><td>${esc(r.site_a || r.project || "")}</td><td class="num">${fmtN(r.km)}</td><td class="num">${fmtB(r.cost)}</td></tr>`).join("") + `</tbody></table></div></div>`;
+        }
+        charts(html, false);
+        const jobCols = [{ k: "site_a", label: "Site A" }, { k: "project", label: "โครงการ" }, { k: "sub", label: "SUB" }, { k: "stage_label", label: "สถานะ" },
+          { k: "km", label: "กม.", num: true, render: (r) => fmtN(r.km) }, { k: "cost", label: "มูลค่า", num: true, render: (r) => fmtB(r.cost) },
+          { k: "cut_plan", label: "แผน Cutover" }, { k: "inst_plan", label: "แผนติดตั้ง" }, { k: "survey_plan", label: "แผนสำรวจ" }, { k: "remark", label: "หมายเหตุ" }];
+        /* full list (all jobs) with a ติดตาม flag column; flagged jobs first. Filters: โครงการ / สถานะ / ติดตาม */
+        const FLAG = { overdue_cutover: "เลยกำหนด Cutover", overdue_survey: "เลยกำหนดสำรวจ", overdue_install: "เลยกำหนดติดตั้ง", blocker: "ติดปัญหา" };
+        const RANK = { overdue_cutover: 0, overdue_install: 1, overdue_survey: 2, blocker: 3 };
+        const base = (d.all_rows && d.all_rows.length) ? d.all_rows : [].concat(d.remaining_rows || []);
+        const rows = base.map((r) => {
+          const al = r.alerts || [];
+          const flag = al.length ? al.map((a) => FLAG[a] || a).join(", ") : (r.stage_label === "ตัด Cutover แล้ว" ? "เสร็จแล้ว" : "ปกติ");
+          const rank = al.length ? Math.min(...al.map((a) => RANK[a] != null ? RANK[a] : 4)) : (flag === "ปกติ" ? 5 : 6);
+          return Object.assign({}, r, { flag, flag_group: al.length ? "ต้องติดตาม" : flag, rank });
+        }).sort((a, b) => a.rank - b.rank || (a.row_num || 0) - (b.row_num || 0));
+        const nFlag = rows.filter((r) => r.flag_group === "ต้องติดตาม").length;
+        const flagCol = { k: "flag", label: "ติดตาม", render: (r) => `<span class="chip ${r.rank <= 0 ? "alert" : r.rank <= 4 ? "watch" : r.rank === 6 ? "ok" : ""}">${esc(r.flag)}</span>`, sortv: (r) => r.rank };
+        table({ title: "รายการงานทั้งหมด " + rows.length + " งาน (ต้องติดตาม " + nFlag + ")", rows,
+          filters: [{ k: "project", label: "โครงการ" }, { k: "stage_label", label: "สถานะ" }, { k: "flag_group", label: "ติดตาม" }],
+          cols: [flagCol].concat(jobCols) });
+      },
+
       meetings(d) {
         const up = d.upcoming || [];
         kpis((d.metrics || []).map((m) => ({ label: m.label, value: m.value, tone: m.tone })).concat([{ label: "ภายใน 30 วัน", value: up.filter((m) => m.days <= 30).length }]));
@@ -880,7 +952,7 @@
       const sheet = $("sheet");
       if (d && d.sheet_url) { sheet.href = d.sheet_url; sheet.hidden = false; sheet.style.display = ""; } else sheet.style.display = "none";
       $("refresh").style.display = "";
-      const mapBtn = $("openMap"); if (mapBtn) mapBtn.hidden = JOB !== "checkin";
+      const mapBtn = $("openMap"); if (mapBtn) mapBtn.hidden = JOB !== "checkin"; const raugBtn = $("openRaug"); if (raugBtn) raugBtn.hidden = JOB !== "budget";
       if (!d) { $("sub").textContent = "ไม่พบข้อมูลของดาวนี้"; $("kpis").innerHTML = ""; charts(""); $("tbl").innerHTML = `<div class="err">ยังไม่มีข้อมูลของ “${esc(JOB)}” — กลับหน้าอวกาศแล้วกดรีเฟรช</div>`; return; }
       $("sub").textContent = [d.count_label, d.updated_hm ? "อัปเดตล่าสุด " + d.updated_hm : (DATA.updated_label || "").replace("\n", " ")].filter(Boolean).join(" · ");
       if (d.ok === false) { $("kpis").innerHTML = ""; charts(""); $("tbl").innerHTML = `<div class="err">อ่านชีตไม่ได้: ${esc(d.error || "")}</div>`; return; }
@@ -896,12 +968,22 @@
     $("refresh").addEventListener("click", async () => {
       const b = $("refresh"); b.classList.add("spin"); b.disabled = true; $("orb").classList.add("refreshing");
       const hm = () => { const d = new Date(); return String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0"); };
-      try { const j = await API.refresh(); if (!j || j.ok === false) throw new Error((j && j.error) || "ผิดพลาด"); DATA.planets[JOB] = j.planet; render(DATA); toast(`✅ รีเฟรช ${$("ttl").textContent.replace(" · Dashboard", "")} เสร็จแล้ว · ${j.planet.updated_hm || hm()}`); }
+      try { const j = await API.refresh(); if (!j || j.ok === false) throw new Error((j && j.error) || "ผิดพลาด"); DATA.planets[JOB] = j.planet; render(DATA); if (POP) toHost({ type: "dash-planet", id: JOB, planet: j.planet }); toast(`✅ รีเฟรช ${$("ttl").textContent.replace(" · Dashboard", "")} เสร็จแล้ว · ${j.planet.updated_hm || hm()}`); }
       catch (e) { toast("⚠️ รีเฟรชไม่สำเร็จ: " + (e && e.message ? e.message : e), true); }
       finally { b.classList.remove("spin"); b.disabled = false; $("orb").classList.remove("refreshing"); }
     });
-    API.data().then(render).catch((e) => { $("tbl").innerHTML = `<div class="err">โหลดข้อมูลไม่สำเร็จ: ${esc(e && e.message || e)}</div>`; });
-    if (!IS_EMBED) setInterval(() => { if (!document.hidden) API.data().then(render).catch(() => {}); }, 4 * 60 * 60 * 1000);
+    function firstData() {
+      if (!POP) return API.data();
+      return new Promise((res) => {
+        let done = false;
+        const t = setTimeout(() => { if (!done) { done = true; API.data().then(res, (e) => res(Promise.reject(e))); } }, 2500);
+        window.addEventListener("message", function once(e) { const m = e.data; if (done || !m || m.type !== "dash-data" || !m.data) return; done = true; clearTimeout(t); res(m.data); });
+        toHost({ type: "dash-ready", job: JOB });
+      });
+    }
+    if (POP) window.addEventListener("message", (e) => { const m = e.data; if (DATA && m && m.type === "dash-data" && m.data && m.data !== DATA) { try { render(m.data); } catch (err) {} } });
+    firstData().then(render).catch((e) => { $("tbl").innerHTML = `<div class="err">โหลดข้อมูลไม่สำเร็จ: ${esc(e && e.message || e)}</div>`; });
+    if (!IS_EMBED && !POP) setInterval(() => { if (!document.hidden) API.data().then(render).catch(() => {}); }, 4 * 60 * 60 * 1000);
   })();
   </script>
 </body>
