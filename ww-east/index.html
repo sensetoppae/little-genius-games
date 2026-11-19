@@ -232,6 +232,12 @@
     .row { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 10px; background: rgba(255,255,255,.035); margin-bottom: 6px; border: 1px solid rgba(255,255,255,.04); }
     .row .t { font-size: 13.5px; font-weight: 500; } .row .t.code { font-variant-numeric: tabular-nums; }
     .row .s, .panel-body > .s { font-size: 12px; color: var(--mute); margin-top: 2px; }
+    .lk-def { font-style: normal; font-size: 10.5px; font-weight: 500; margin-left: 6px; padding: 1px 6px; border-radius: 99px; background: rgba(0,240,255,.12); color: #8ff6ff; vertical-align: 1px; }
+    .row.qrow { align-items: flex-start; } .row .s b.neg { color: #ff8b98; }
+    .gbar { position: relative; height: 7px; border-radius: 99px; background: rgba(255,255,255,.08); margin: 6px 0 4px; overflow: hidden; }
+    .gbar i { position: absolute; inset: 0 auto 0 0; border-radius: 99px; background: #3ee6a8; }
+    .gbar.watch i { background: #ffb547; } .gbar.alert i { background: #ff5468; }
+    .gbar b { position: absolute; top: -2px; bottom: -2px; width: 2px; background: #fff; opacity: .85; }
     .chip { flex: none; font-size: 11.5px; font-weight: 500; padding: 3px 9px; border-radius: 999px; background: rgba(255,255,255,.07); color: #dcdaf8; white-space: nowrap; }
     .chip.alert { background: rgba(255, 84, 104, .16); color: #ff9aa6; } .chip.watch { background: rgba(255, 181, 71, .16); color: #ffd27a; } .chip.ok { background: rgba(62, 230, 168, .14); color: #8ff3cd; }
     .meet-item { display: flex; justify-content: space-between; gap: 10px; align-items: center; padding: 10px 12px; border-radius: 10px; background: rgba(255,255,255,.035); margin-bottom: 6px; }
@@ -850,7 +856,7 @@
       <button type="button" class="round mic" id="chatMic" aria-label="พูดเพื่อถาม" title="กดแล้วพูดภาษาไทย">
         <svg width="18" height="18" viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5.5" y="1.5" width="5" height="8.5" rx="2.5" fill="currentColor"/><path d="M3 7.5a5 5 0 0010 0M8 12.5v2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
       </button>
-      <textarea id="chatInput" rows="1" placeholder="พิมพ์คำถาม เช่น OFC เลยกำหนดกี่งาน" aria-label="คำถาม"></textarea>
+      <textarea id="chatInput" rows="1" placeholder="พิมพ์คำถาม เช่น True RAUG OFC กี่งาน" aria-label="คำถาม"></textarea>
       <button type="submit" class="round send" id="chatSend" aria-label="ส่ง"><svg width="17" height="17" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2 8l11-5-4 11-2-4.5L2 8z" fill="currentColor"/></svg></button>
     </form>
   </aside>
@@ -988,10 +994,12 @@
       { id: "checkin",  title: "Check In",          c: "#34e0b4", group: "field", ring: true },
       { id: "huato",    title: "บอทหัวต่อ",          c: "#ff9b54", group: "field" },
       { id: "planwork", title: "Planwork",           c: "#5ee1ff", group: "field" },
-      { id: "ofc",      title: "OFC เลยกำหนด",       c: "#ff6b7a", group: "track" },
+      { id: "ofc",      title: "True RAUG OFC",      c: "#ff6b7a", group: "track" },
       { id: "budget",   title: "Budget PE ค้างกำหนด", c: "#ffc94d", group: "track" },
       { id: "fttx",     title: "Block FTTx",        c: "#ff6fd8", group: "track" },
       { id: "pat",      title: "รอเล่ม Pat",          c: "#8f7bff", group: "track", ring: true },
+      { id: "quota",    title: "Quota OFC 2026",     c: "#ff8a3d", group: "track" },
+      { id: "progress", title: "Progress RAUG 2026", c: "#7dff8a", group: "track" },
       { id: "meetings", title: "นัดประชุมการไฟฟ้า",    c: "#4aa3ff", group: "meet" },
       { id: "notes",    title: "บันทึกประชุม",         c: "#c08cff", group: "meet" },
       { id: "links",    title: "แหล่งเก็บข้อมูล",       c: "#00f0ff", group: "meet", ring: true },
@@ -1011,7 +1019,7 @@
     const mqCompact = window.matchMedia("(max-width: 860px)");
     state.compact = mqCompact.matches;
     state.view = (function () { const v = params.get("view"); if (v === "list" || v === "galaxy") return v; try { return localStorage.getItem("space_view") === "list" ? "list" : "galaxy"; } catch (e) { return "galaxy"; } })();
-    const SHORT = { checkin: "Check In", huato: "หัวต่อ", planwork: "Planwork", ofc: "OFC", budget: "Budget", fttx: "FTTx", pat: "Pat", meetings: "นัดประชุม", notes: "บันทึก", links: "แหล่งข้อมูล", contacts: "ติดต่อ" };
+    const SHORT = { checkin: "Check In", huato: "หัวต่อ", planwork: "Planwork", ofc: "OFC", budget: "Budget", fttx: "FTTx", pat: "Pat", quota: "Quota", progress: "Progress", meetings: "นัดประชุม", notes: "บันทึก", links: "แหล่งข้อมูล", contacts: "ติดต่อ" };
     const shortName = (p) => SHORT[p.id] || (p.title.length > 10 ? p.title.slice(0, 9) + "…" : p.title);
     let PLANETS = [];
     const pdata = (id) => (state.data && state.data.planets && state.data.planets[id]) || null;
@@ -1656,6 +1664,10 @@
       if (ofc && ofc.rows && ofc.rows[0]) tickerItems.push("OFC " + (ofc.count_label || "") + " · " + [ofc.rows[0].eas, ofc.rows[0].province].filter(Boolean).join(" "));
       const ft = pdata("fttx");
       if (ft && ft.soon && ft.soon.length) tickerItems.push("Block FTTx ครบกำหนดพรุ่งนี้ " + ft.soon.length + " งาน");
+      const qo = pdata("quota");
+      if (qo && qo.ok !== false && qo.count_label && qo.status !== "ok") tickerItems.push("Quota OFC 2026 " + qo.count_label);
+      const pg = pdata("progress");
+      if (pg && pg.ok !== false && pg.count_label) tickerItems.push("Progress RAUG 2026 " + pg.count_label + " ล้านบาท");
       const pw = pdata("planwork");
       if (pw && pw.count) tickerItems.push("Planwork " + (pw.count_label || (pw.count + " งาน")));
       if (ci && ci.recent && ci.recent[0]) tickerItems.push("Check In ล่าสุด " + ci.recent[0].sites + (ci.recent[0].vender ? " · " + ci.recent[0].vender : ""));
@@ -1676,6 +1688,12 @@
       return `<div class="row"><div style="min-width:0"><div class="t ${cls || ""}">${esc(title)}</div>${sub ? `<div class="s">${esc(sub)}</div>` : ""}</div>${chip ? `<span class="chip ${tone || ""}">${esc(chip)}</span>` : ""}</div>`;
     }
     const none = (t) => `<div class="s">${esc(t)}</div>`;
+    const fmtN = (x, dg) => (x == null || x === "" ? "–" : Number(x).toLocaleString("th-TH", { maximumFractionDigits: dg == null ? 2 : dg }));
+    // แถบเกจเล็กๆ ในแผงดาว: ค่า/สูงสุด (เกิน 100% เป็นสีแดง)
+    function gauge(v, max, tone) {
+      const pct = max > 0 ? v * 100 / max : 0, w = Math.max(0, Math.min(100, pct));
+      return `<div class="gbar ${tone || ""}" role="img" aria-label="${fmtN(pct, 0)}%"><i style="width:${w.toFixed(1)}%"></i>${pct > 100 ? `<b style="left:${(10000 / pct).toFixed(1)}%"></b>` : ""}</div>`;
+    }
     /* ---------- ฟอร์มเพิ่มข้อมูลลงชีต: บันทึกประชุม / นัดหมาย / Block FTTx (เฉพาะเจ้าของสคริปต์) ---------- */
     const ADD_FORMS = {
       notes: { btn: "➕ เพิ่มบันทึกประชุม", fn: "addMeetingNote", url: "/api/notes/add", ok: "✅ บันทึกประชุมแล้ว", titleKey: "title",
@@ -1836,6 +1854,25 @@
           <div class="group-title">ครบกำหนดพรุ่งนี้</div>${(d.soon || []).map((r) => f(r, "พรุ่งนี้", "watch")).join("") || none("ไม่มีงานครบพรุ่งนี้")}`;
         AF.bind(b, "fttx");
       },
+      quota(b, d) {
+        const gs = d.groups || [];
+        b.innerHTML = `<div class="group-title">โควตาแต่ละกลุ่ม (km)</div>` + (gs.map((g) => `<div class="row qrow"><div style="min-width:0;flex:1">
+            <div class="t">${esc(g.name)}</div>
+            <div class="s">Request ${fmtN(g.request)} / Max ${fmtN(g.max)} · คงเหลือ <b class="${g.remain < 0 ? "neg" : ""}">${fmtN(g.remain)}</b></div>
+            ${gauge(g.request, g.max, g.over ? "alert" : g.near ? "watch" : "ok")}
+            <div class="s">Approved ${fmtN(g.approved_km)} km (${fmtN(g.approved_pct, 0)}%) · Completed ${fmtN(g.completed_km)} km · Plan Final ${esc(g.plan_final || "–")}${g.budget_over ? " · Budget over ฿" + (g.budget_over_text || fmtN(g.budget_over, 0)) : ""}</div>
+          </div><span class="chip ${g.tone === "ok" ? "ok" : g.tone}">${esc(g.reasons && g.reasons[0] ? g.reasons[0] : "ปกติ")}</span></div>`).join("") || none("ไม่มีข้อมูลโควตา")) +
+          ((d.not_keyed || []).length ? `<div class="group-title">ยังไม่คีย์ Quota (${d.not_keyed.length} งาน)</div>` + d.not_keyed.slice(0, 8).map((r) => row([r.group, r.province].filter(Boolean).join(" · "), (r.project || "") + (r.status ? " · " + r.status : ""), "code", fmtN(r.km) + " km", "watch")).join("") : "") +
+          ((d.notes || []).length ? `<div class="group-title">หมายเหตุจากชีต</div><div class="s">${d.notes.map(esc).join("<br>")}</div>` : "");
+      },
+      progress(b, d) {
+        const ms = (d.months || []).filter((m) => m.actual != null).slice(-4).reverse();
+        b.innerHTML = `<div class="group-title">สะสม ม.ค.–${esc(d.last_month_label || "")} (ล้านบาท)</div>
+          <div class="row qrow"><div style="min-width:0;flex:1"><div class="t">Actual ${fmtN(d.ytd_actual)} / Plan ${fmtN(d.ytd_plan)}</div>${gauge(d.ytd_actual, d.ytd_plan, d.status === "alert" ? "alert" : d.status === "watch" ? "watch" : "ok")}
+          <div class="s">แผนทั้งปี ${fmtN(d.year_plan)} · ยังต้องทำอีก ${fmtN(d.remain_to_plan)} · Out of Scope ${fmtN(d.oos && d.oos.rev)} (ไม่นับใน %)</div></div><span class="chip ${d.status === "ok" ? "ok" : d.status}">${fmtN(d.ytd_pct, 1)}%</span></div>` +
+          ((d.warnings || []).length ? `<div class="group-title">ต้องติดตาม</div>` + d.warnings.map((w) => row(w, "", "", "", "watch")).join("") : "") +
+          `<div class="group-title">รายเดือนล่าสุด</div>` + (ms.map((m) => row(m.label, "RAUG " + fmtN(m.raug) + " · Improvement " + fmtN(m.imp) + (m.oos ? " · OOS " + fmtN(m.oos) : ""), "code", fmtN(m.actual) + " / " + fmtN(m.plan) + " (" + fmtN(m.pct, 0) + "%)", m.pct != null && m.pct < 90 ? "watch" : "ok")).join("") || none("ยังไม่มียอด"));
+      },
       pat(b, d) {
         b.innerHTML = `<div class="group-title">แยกตาม Partner (ยังไม่ลง FBOQ)</div>` + ((d.partners || []).map((p) => row(p.partner, (p.types || []).map((t) => t.type + " " + t.count).join(" · "), "", String(p.count))).join("") || none("ไม่มีงานรอเล่ม Pat"));
       },
@@ -1915,7 +1952,7 @@
             ${ib("gEdit", "แก้ไขกลุ่ม", "✎")}${ib("gDel", "ลบกลุ่ม", "🗑", false, "danger")}${ib("lAdd", "เพิ่มลิงก์ในกลุ่มนี้", "＋")}</div>
           ${links.length ? links.map((l) => {
             const li = g.links.indexOf(l);
-            return `<div class="lk-link" data-lid="${esc(l.id)}"><a href="${esc(l.url)}" target="_blank" rel="noopener"><span class="nm">${hl(l.name, q)}</span><span class="sub">${hl([l.note, q ? l.url : host(l.url)].filter(Boolean).join(" · "), q)}</span></a>
+            return `<div class="lk-link" data-lid="${esc(l.id)}"><a href="${esc(l.url)}" target="_blank" rel="noopener"><span class="nm">${hl(l.name, q)}${l.builtin ? `<em class="lk-def" title="ลิงก์ตั้งต้นของระบบ แก้หรือลบได้">ตั้งต้น</em>` : ""}</span><span class="sub">${hl([l.note, q ? l.url : host(l.url)].filter(Boolean).join(" · "), q)}</span></a>
               ${q ? "" : ib("lUp", "เลื่อนขึ้น", "↑", li === 0) + ib("lDown", "เลื่อนลง", "↓", li === g.links.length - 1)}${ib("lEdit", "แก้ไขลิงก์", "✎")}${ib("lDel", "ลบลิงก์", "🗑", false, "danger")}</div>`;
           }).join("") : `<div class="lk-empty">ยังไม่มีลิงก์ — กด ＋ เพื่อเพิ่ม</div>`}
         </section>`;
@@ -2854,7 +2891,7 @@
     function setListening(on) {
       listening = on; mic.classList.toggle("on", on); document.body.classList.toggle("listening", on);
       mic.setAttribute("aria-label", on ? "หยุดฟัง" : "พูดเพื่อถาม");
-      input.placeholder = on ? "กำลังฟัง… พูดได้เลย" : (SR ? "พิมพ์คำถาม เช่น OFC เลยกำหนดกี่งาน" : input.placeholder);
+      input.placeholder = on ? "กำลังฟัง… พูดได้เลย" : (SR ? "พิมพ์คำถาม เช่น True RAUG OFC กี่งาน" : input.placeholder);
     }
 
     function openChat() {
