@@ -60,12 +60,17 @@
     .badge { font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 999px; color: #1b1300;
       background: linear-gradient(90deg, #ffd66b, #ffb547); box-shadow: 0 0 12px rgba(255, 190, 80, .5); }
     .badge[hidden] { display: none; }
-    .hud { display: flex; flex-direction: column; gap: 8px; align-items: stretch; min-width: 520px; }
+    .hud { display: flex; flex-direction: column; gap: 8px; align-items: stretch; min-width: 600px; }
     .hud-row { display: flex; gap: 8px; align-items: stretch; }
     .glass { background: var(--glass); border: 1px solid var(--line); border-radius: var(--r);
       backdrop-filter: blur(14px) saturate(140%); -webkit-backdrop-filter: blur(14px) saturate(140%);
       box-shadow: 0 10px 40px rgba(0, 0, 0, .35), inset 0 1px 0 rgba(255, 255, 255, .06); }
-    .stats { display: grid; grid-template-columns: repeat(4, 1fr); flex: 1; padding: 0; overflow: hidden; }
+    .stats { display: grid; grid-template-columns: repeat(5, 1fr); flex: 1; padding: 0; overflow: hidden; }
+    .stat.pw { cursor: pointer; } .stat.pw:hover { background: rgba(255,255,255,.04); }
+    .stat.pw.hot b { color: #ffd27a; text-shadow: 0 0 14px rgba(255, 200, 90, .5); }
+    .stat.pw:focus-visible { outline: 2px solid #ffd27a; outline-offset: -2px; }
+    .hud-row2 { display: contents; }
+    .more-btn, .mmenu, .mbar { display: none; }
     .stat { padding: 9px 14px; position: relative; min-width: 0; }
     .stat + .stat::before { content: ""; position: absolute; left: 0; top: 12px; bottom: 12px; width: 1px; background: var(--line); }
     .stat b { display: block; font-size: 20px; font-weight: 600; line-height: 1.15; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -246,6 +251,13 @@
       background: rgba(255,255,255,.035); border: 1px solid rgba(255,255,255,.05); color: inherit; font: inherit; }
     .note-item[aria-pressed="true"] { border-color: color-mix(in srgb, var(--c) 60%, transparent); background: color-mix(in srgb, var(--c) 12%, transparent); }
     .note-item .d { font-size: 12px; color: var(--mute); flex: none; } .note-item .t { font-size: 13.5px; font-weight: 500; }
+    .note-item .t { flex: 1; } .note-item .chev { flex: none; color: var(--mute); transition: transform .25s; }
+    .note-item[aria-expanded="true"] .chev { transform: rotate(90deg); color: #ffd27a; }
+    .note-acc { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .26s ease; margin: -2px 0 0; }
+    .note-acc.open { grid-template-rows: 1fr; margin-bottom: 8px; }
+    .note-acc-in { overflow: hidden; min-height: 0; }
+    .note-acc .note-detail { margin-top: 0; }
+    @media (prefers-reduced-motion: reduce) { .note-acc { transition: none; } }
     .note-detail { margin-top: 10px; padding: 12px 14px; border-radius: 12px; background: rgba(0,0,0,.25); border: 1px solid rgba(255,255,255,.06); }
     .note-detail h3 { margin: 0 0 6px; font-size: 13px; color: #c9b6ff; font-weight: 500; }
     .note-detail pre { margin: 0; white-space: pre-wrap; font: inherit; font-size: 13.5px; line-height: 1.65; }
@@ -599,31 +611,63 @@
     /* ---------- Mobile-first: compact galaxy, list view, bottom sheet, FAB ---------- */
     @keyframes sheetin { from { transform: translateY(100%); } }
     .sheet-grab, .viewtog, .fab-wrap { display: none; }
+    .stage-size { display: none; }
+    .mzoom { display: none; position: absolute; z-index: 7; left: 12px; top: 0; align-items: center; gap: 4px;
+      padding: 4px; border-radius: 999px; background: rgba(16, 13, 46, .86); border: 1px solid rgba(170,160,255,.3); box-shadow: 0 6px 20px rgba(0,0,0,.45); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+    .mzoom button { height: 40px; min-width: 40px; padding: 0 8px; border-radius: 999px; border: 0; background: rgba(255,255,255,.07); color: #f3f1ff; font: inherit; font-size: 18px; font-weight: 600; cursor: pointer; }
+    .mzoom .zl { min-width: 54px; font-size: 13px; font-weight: 500; color: var(--mute); background: transparent; }
+    .mzoom.manual .zl { color: #ffd27a; }
+    .mzoom button:focus-visible { outline: 2px solid #ffd27a; outline-offset: 1px; }
     .planet .lbl { display: none; }
     .planet .hit { position: absolute; inset: -14px; border-radius: 50%; }
     @media (max-width: 860px) {
-      .top { padding: calc(10px + env(safe-area-inset-top)) 12px 0; gap: 8px; }
-      .brand { gap: 10px; } .brand p { display: none; }
-      .brand h1 { font-size: 16px; gap: 8px; } .logo { width: 34px; height: 34px; border-radius: 10px; }
+      .top { padding: calc(8px + env(safe-area-inset-top)) 10px 0; gap: 6px; }
+      .brand { gap: 8px; width: 100%; } .brand p { display: none; }
+      .brand > div:not(.logo) { flex: 1; min-width: 0; display: flex; align-items: center; gap: 6px; }
+      .brand h1 { flex: 1; min-width: 0; font-size: 15px; gap: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
+      .brand h1 .badge { font-size: 10px; padding: 2px 7px; vertical-align: 2px; }
+      .logo { width: 30px; height: 30px; border-radius: 9px; flex: none; }
+      .plist-btn, .more-btn { margin: 0 !important; height: 40px !important; width: 40px; padding: 0 !important; display: inline-grid; place-items: center; flex: none; border-radius: 12px; }
+      .more-btn[aria-expanded="true"] { color: #ffd27a; border-color: rgba(255,210,122,.55); }
+      #btnLogout { display: none !important; }
       .hud { gap: 6px; } .hud-row { flex-direction: column; gap: 6px; }
-      .stats { grid-template-columns: repeat(4, 1fr) !important; }
-      .stat { padding: 7px 8px !important; border-top: 0 !important; }
-      .stat:nth-child(3)::before { display: block !important; }
-      .stat b { font-size: 16px; } .stat span { font-size: 10px; display: block; overflow: hidden; text-overflow: ellipsis; }
+      .actions { display: none !important; }
+      .stats { display: flex !important; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x proximity; scrollbar-width: none; border-radius: 12px; }
+      .stats::-webkit-scrollbar { display: none; }
+      .stat { flex: 1 0 auto; min-width: 64px; padding: 5px 8px !important; border-top: 0 !important; scroll-snap-align: start; }
+      .stat:nth-child(n)::before { display: block !important; } .stat:first-child::before { display: none !important; }
+      .stat b { font-size: 15px; line-height: 1.2; } .stat span { font-size: 10.5px; display: block; overflow: hidden; text-overflow: ellipsis; }
+      .hud-row2 { display: flex; gap: 6px; align-items: stretch; }
+      .hud-row2 .ticker { flex: 1; min-width: 0; order: 1; height: 40px; box-sizing: border-box; }
+      .hud-row2 .viewtog { order: 2; flex: none; padding: 2px !important; border-radius: 12px !important; gap: 2px !important; }
+      .hud-row2 .viewtog button { height: 34px !important; width: 40px; padding: 0 !important; } .hud-row2 .viewtog .vt { display: none; }
+      .hud-row2 .viewtog button svg { display: block !important; width: 16px; height: 16px; }
+      .mmenu { position: fixed; z-index: 30; right: calc(10px + env(safe-area-inset-right)); top: calc(54px + env(safe-area-inset-top)); min-width: 200px; padding: 6px;
+        display: flex; flex-direction: column; gap: 2px; border-radius: 14px; background: rgba(18, 15, 52, .97); border: 1px solid rgba(170,160,255,.3); box-shadow: 0 14px 40px rgba(0,0,0,.55); }
+      .mmenu[hidden] { display: none; }
+      .mmenu button { display: flex; align-items: center; gap: 10px; height: 44px; padding: 0 12px; border: 0; border-radius: 10px; background: transparent; color: #f3f1ff; font: inherit; font-size: 14px; text-align: left; cursor: pointer; }
+      .mmenu button:hover, .mmenu button:focus-visible { background: rgba(255,255,255,.07); outline: none; }
+      .mmenu button[hidden] { display: none; }
       .actions { flex-direction: row; gap: 6px; } .actions > .btn { flex: 1; }
       .actions .btn { height: 44px; } .actions .btn.icon { width: 44px; } .actions > div { flex: 1; } .actions > div > .btn:first-child { flex: 1; }
       .viewtog { display: grid; grid-template-columns: 1fr 1fr; padding: 4px; gap: 4px; border-radius: 14px; }
       .viewtog button { height: 40px; border: 0; border-radius: 10px; background: transparent; color: var(--mute); font: inherit; font-size: 13.5px; font-weight: 500;
         display: inline-flex; align-items: center; justify-content: center; gap: 7px; cursor: pointer; }
       .viewtog button[aria-pressed="true"] { color: #1b1300; background: linear-gradient(135deg, #ffe08a, #ffb547); box-shadow: 0 4px 16px rgba(255, 180, 70, .3); }
-      .ticker { padding: 6px 10px; font-size: 12px; } .ticker .upd { display: none; }
+      .ticker { padding: 6px 10px; font-size: 12px; align-items: center; } .ticker .upd { display: none; }
       /* compact galaxy */
       html, body { overflow-x: hidden; }
-      body.view-galaxy .stage { overflow: hidden; display: block; position: relative; top: auto; bottom: auto; height: clamp(440px, calc(100svh - 236px), 700px); margin-top: 4px; }
+      body.view-galaxy .stage { overflow: hidden; display: block; position: relative; top: auto; bottom: auto; height: max(220px, calc(100svh - var(--mtop, 236px) - var(--mbar, 62px) - 6px)); margin-top: 4px; touch-action: pan-x pan-y; }
+      body.view-galaxy .stage.mpan { overflow: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; scrollbar-width: none; }
+      body.view-galaxy .stage.mpan::-webkit-scrollbar { display: none; }
+      .stage-size { display: block; position: absolute; left: 0; top: 0; width: 1px; height: 1px; pointer-events: none; visibility: hidden; }
+      .stage.pinching { z-index: 6; }
+      body.view-galaxy .mzoom { display: inline-flex; }
+      body[data-panel="open"] .mzoom, body.chat-open .mzoom, body.modal-open .mzoom, body.plist-open .mzoom { display: none; }
       body.view-list .stage { display: none; }
       body.compact .card, body.compact #caps { display: none; }
       body.compact .planet .lbl { display: block; position: absolute; left: 50%; top: 50%; transform: translate(-50%, calc(50% + 8px)); z-index: 4; pointer-events: none;
-        padding: 2px 8px; border-radius: 999px; font-size: 11.5px; font-weight: 600; line-height: 1.5; white-space: nowrap; color: #f3f1ff;
+        padding: 1px 7px; border-radius: 999px; font-size: var(--mlf, 11px); font-weight: 600; line-height: 1.5; white-space: nowrap; color: #f3f1ff;
         background: rgba(10, 8, 34, .78); border: 1px solid color-mix(in srgb, var(--c) 45%, transparent); box-shadow: 0 2px 10px rgba(0,0,0,.4); }
       body.compact .planet.is-alert .lbl { border-color: rgba(255, 84, 104, .7); }
       body.compact .sun-hit .ask { font-size: 10.5px; bottom: -12px; padding: 2px 8px; }
@@ -640,22 +684,42 @@
       .m-item .m-ref { flex: none; width: 44px; height: 44px; margin-right: 10px; border-radius: 12px; }
       .m-item.refreshing .m-ref svg { animation: spin 1s linear infinite; }
       /* floating AI + mic */
-      .fab-wrap { display: flex; flex-direction: column; align-items: center; gap: 10px; position: fixed; z-index: 7;
-        right: calc(14px + env(safe-area-inset-right)); bottom: calc(16px + env(safe-area-inset-bottom)); }
-      body[data-panel="open"] .fab-wrap, body.chat-open .fab-wrap, body.modal-open .fab-wrap { display: none; }
+      /* ---- compact mobile chrome: one-row top bar, scrollable stat strip, slim bottom bar ---- */
+      .mbar { display: flex; align-items: center; gap: 8px; position: fixed; z-index: 7; left: 0; right: 0; bottom: 0;
+        padding: 6px calc(10px + env(safe-area-inset-right)) calc(6px + env(safe-area-inset-bottom)) calc(10px + env(safe-area-inset-left));
+        background: rgba(12, 10, 36, .9); border-top: 1px solid rgba(170,160,255,.22); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); box-shadow: 0 -8px 24px rgba(0,0,0,.35); }
+      .mbar-sp { flex: 1; }
+      .mbar .mzoom { position: static !important; box-shadow: none; padding: 2px; background: rgba(255,255,255,.04); }
+      body[data-panel="open"] .mbar, body.chat-open .mbar, body.modal-open .mbar { display: none; }
+      body.view-list { padding-bottom: calc(70px + env(safe-area-inset-bottom)); }
+      .fab-wrap { display: flex; flex-direction: row; align-items: center; gap: 10px; position: static; }
       .fab { position: relative; width: 60px; height: 60px; border-radius: 50%; border: 0; cursor: pointer; display: grid; place-items: center; padding: 0;
         background: radial-gradient(circle at 35% 30%, #fff6d6 0, #ffd36b 30%, #ff9f2e 75%, #c25a08 100%);
         box-shadow: 0 0 0 6px rgba(255, 190, 80, .14), 0 0 30px rgba(255, 170, 60, .55), 0 10px 26px rgba(0,0,0,.45); color: #3d1a00; }
       .fab .fab-t { font-weight: 700; font-size: 15px; letter-spacing: .5px; }
-      .fab.mini { width: 46px; height: 46px; background: rgba(26, 22, 66, .9); color: #ffd27a; border: 1px solid rgba(255, 207, 92, .45);
+      .mbar .fab { width: 48px; height: 48px; box-shadow: 0 0 0 4px rgba(255, 190, 80, .12), 0 0 18px rgba(255, 170, 60, .45); }
+      .mbar .fab .fab-t { font-size: 13.5px; }
+      .fab.mini { width: 44px; height: 44px; background: rgba(26, 22, 66, .9); color: #ffd27a; border: 1px solid rgba(255, 207, 92, .45);
         box-shadow: 0 6px 20px rgba(0,0,0,.45), 0 0 16px rgba(255, 190, 80, .25); }
       .fab.mini[hidden] { display: none; }
       body.listening .fab { animation: glowpulse 1s ease-in-out infinite; }
-      .toast { bottom: calc(92px + env(safe-area-inset-bottom)); max-width: calc(100vw - 32px); text-align: center; }
+      .toast { bottom: calc(76px + env(safe-area-inset-bottom)); max-width: calc(100vw - 32px); text-align: center; }
       .modal { max-height: calc(100svh - 24px); }
       .modal-body { grid-template-columns: 1fr; } .modal-form { grid-template-columns: 1fr; } .modal-side { border-left: 0; border-top: 1px solid rgba(255,255,255,.06); }
     }
-    @media (max-width: 380px) { .viewtog button svg { display: none; } .stat span { font-size: 9.5px; } }
+    @media (max-width: 380px) { .stat { padding: 5px 7px !important; } .stat span { font-size: 10px; } }
+    @media (min-width: 861px) { #btnMore, #mMenu, #mBar { display: none !important; } }
+    /* landscape phone: brand + stat strip + view toggle on ONE row, slimmer bottom bar */
+    @media (max-width: 860px) and (max-height: 500px) {
+      .top { flex-direction: row !important; align-items: center; padding-bottom: 0; }
+      .brand { width: auto !important; flex: 0 1 300px; min-width: 0; }
+      .hud { flex: 1; min-width: 0; flex-direction: row !important; align-items: center; }
+      .hud-row { flex: 1; min-width: 0; } .hud-row .stats { flex: 1; }
+      .hud-row2 .ticker { display: none; }
+      .stat { padding: 3px 10px !important; } .stat b { font-size: 14px; }
+      .mbar { padding-top: 4px; padding-bottom: calc(4px + env(safe-area-inset-bottom)); }
+      .mbar .fab { width: 42px; height: 42px; } .fab.mini { width: 40px; height: 40px; }
+    }
   </style>
 </head>
 <body>
@@ -674,6 +738,9 @@
         <button type="button" class="btn plist-btn" id="btnPlist" aria-controls="plist" aria-expanded="false" title="เปิด/ปิด รายการดวงดาว">
           <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 4h10M3 8h10M3 12h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><span>รายการดวงดาว</span>
         </button>
+        <button type="button" class="btn more-btn" id="btnMore" aria-haspopup="menu" aria-expanded="false" aria-controls="mMenu" aria-label="เมนูเพิ่มเติม" title="เมนู">
+          <svg width="18" height="18" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="3.2" cy="8" r="1.5" fill="currentColor"/><circle cx="8" cy="8" r="1.5" fill="currentColor"/><circle cx="12.8" cy="8" r="1.5" fill="currentColor"/></svg>
+        </button>
       </div>
     </div>
     <section class="hud" aria-label="สรุปภาพรวม">
@@ -683,6 +750,7 @@
           <div class="stat watch"><b id="stNext">–</b><span>นัดประชุมถัดไป</span></div>
           <div class="stat ok"><b id="stCheck">–</b><span>Check In วันนี้</span></div>
           <div class="stat"><b id="stPat">–</b><span>รอเล่ม Pat</span></div>
+          <div class="stat pw" id="stPwCard" role="button" tabindex="0" aria-label="Planwork พรุ่งนี้ — เปิดดาว Planwork" title="เปิดดาว Planwork"><b id="stPw">–</b><span>Planwork พรุ่งนี้</span></div>
         </div>
         <div class="actions">
           <button type="button" class="btn" id="btnRefresh" aria-label="รีเฟรชทั้งหมด" title="รีเฟรชดาวทุกดวง (ข้ามแคช)">
@@ -701,9 +769,10 @@
           </div>
         </div>
       </div>
+      <div class="hud-row2">
       <div class="viewtog glass" role="group" aria-label="เลือกมุมมอง">
-        <button type="button" data-view="galaxy" aria-pressed="true"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="2.6" fill="currentColor"/><ellipse cx="8" cy="8" rx="6.6" ry="2.8" stroke="currentColor" stroke-width="1.2" transform="rotate(-20 8 8)"/></svg>มุมมองดาว</button>
-        <button type="button" data-view="list" aria-pressed="false"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 4h10M3 8h10M3 12h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>มุมมองรายการ</button>
+        <button type="button" data-view="galaxy" aria-pressed="true"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="2.6" fill="currentColor"/><ellipse cx="8" cy="8" rx="6.6" ry="2.8" stroke="currentColor" stroke-width="1.2" transform="rotate(-20 8 8)"/></svg><span class="vt">มุมมองดาว</span></button>
+        <button type="button" data-view="list" aria-pressed="false"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 4h10M3 8h10M3 12h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><span class="vt">มุมมองรายการ</span></button>
       </div>
       <div class="glass ticker" aria-live="off">
         <span class="tag"><i></i>ล่าสุด</span>
@@ -715,10 +784,12 @@
           <button type="button" id="zoomIn" aria-label="ขยายจักรวาล" title="ขยาย (ใหญ่ขึ้น 10%)">+</button>
         </span>
       </div>
+      </div>
     </section>
   </header>
 
   <main class="stage" id="stage" aria-label="แผนที่ดาว">
+    <div class="stage-size" id="stageSize" aria-hidden="true"></div>
     <div class="galaxy" id="galaxy" aria-hidden="true"><div class="core-glow"></div><div class="disc" id="disc"><canvas id="galaxyCv" width="900" height="900"></canvas></div></div>
     <svg id="net" aria-hidden="true"><defs id="netDefs">
       <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
@@ -734,6 +805,24 @@
     <div id="planets"></div>
   </main>
 
+  <div class="mmenu" id="mMenu" role="menu" aria-label="เมนู" hidden>
+    <button type="button" role="menuitem" data-m="refresh"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M13.5 8a5.5 5.5 0 11-1.6-3.9M13.5 2.5v3h-3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>รีเฟรชทั้งหมด</button>
+    <button type="button" role="menuitem" data-m="add"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>เพิ่มดาว</button>
+    <button type="button" role="menuitem" data-m="motion"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M5.5 3.5v9M10.5 3.5v9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span id="mMotionT">หยุดการหมุน</span></button>
+    <button type="button" role="menuitem" data-m="logout" id="mLogout" hidden><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M6 3H3.5v10H6M10 5l3 3-3 3M13 8H6.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>ออกจากระบบ</button>
+  </div>
+  <div class="mbar" id="mBar">
+  <div class="mzoom" id="mZoom" role="group" aria-label="ขนาดดาว (มือถือ)">
+    <button type="button" id="mzOut" aria-label="ย่อดาว" title="ย่อ">−</button>
+    <button type="button" id="mzLbl" class="zl" aria-label="กลับเป็นขนาดอัตโนมัติ" title="กดเพื่อกลับเป็นขนาดอัตโนมัติ">68%</button>
+    <button type="button" id="mzIn" aria-label="ขยายดาว" title="ขยาย">+</button>
+  </div>
+  <span class="mbar-sp"></span>
+  <div class="fab-wrap" id="fabWrap">
+    <button type="button" class="fab mini" id="fabMic" aria-label="พูดถามผู้ช่วย AI" title="พูดถามผู้ช่วย AI"><svg width="18" height="18" viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5.5" y="1.5" width="5" height="8.5" rx="2.5" fill="currentColor"/><path d="M3 7.5a5 5 0 0010 0M8 12.5v2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></button>
+    <button type="button" class="fab" id="fabAI" data-open-chat aria-label="ถามผู้ช่วย AI"><span class="fab-sun" aria-hidden="true"></span><span class="fab-t">AI</span></button>
+  </div>
+  </div>
   <nav class="mobile" id="mobile" aria-label="รายการงาน">
     <div class="m-sun glass" data-open-chat role="button" tabindex="0" aria-label="ถามผู้ช่วย AI" style="cursor:pointer">
       <div class="sun" aria-hidden="true"><div class="sun-halo"></div><div class="sun-pulse"></div><div class="sun-pulse p2"></div><div class="sun-core"></div></div>
@@ -860,10 +949,6 @@
       <button type="submit" class="round send" id="chatSend" aria-label="ส่ง"><svg width="17" height="17" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2 8l11-5-4 11-2-4.5L2 8z" fill="currentColor"/></svg></button>
     </form>
   </aside>
-  <div class="fab-wrap" id="fabWrap">
-    <button type="button" class="fab mini" id="fabMic" aria-label="พูดถามผู้ช่วย AI" title="พูดถามผู้ช่วย AI"><svg width="18" height="18" viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5.5" y="1.5" width="5" height="8.5" rx="2.5" fill="currentColor"/><path d="M3 7.5a5 5 0 0010 0M8 12.5v2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></button>
-    <button type="button" class="fab" id="fabAI" data-open-chat aria-label="ถามผู้ช่วย AI"><span class="fab-sun" aria-hidden="true"></span><span class="fab-t">AI</span></button>
-  </div>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
   <script>window.__ENV__ = { mode: "pages", base: ".", job: new URLSearchParams(location.search).get("job") || new URLSearchParams(location.search).get("dash") || "" };</script>
   <script>
@@ -994,19 +1079,22 @@
       { id: "checkin",  title: "Check In",          c: "#34e0b4", group: "field", ring: true },
       { id: "huato",    title: "บอทหัวต่อ",          c: "#ff9b54", group: "field" },
       { id: "planwork", title: "Planwork",           c: "#5ee1ff", group: "field" },
-      { id: "ofc",      title: "True RAUG OFC",      c: "#ff6b7a", group: "track" },
+      { id: "fttx",     title: "Block FTTx",        c: "#ff6fd8", group: "field" },
+      { id: "meetings", title: "นัดประชุมการไฟฟ้า",    c: "#4aa3ff", group: "meet" },
+      { id: "notes",    title: "บันทึกประชุม",         c: "#c08cff", group: "meet", ring: true },
+      { id: "links",    title: "แหล่งเก็บข้อมูล",       c: "#00f0ff", group: "data", ring: true },
+      { id: "contacts", title: "ข้อมูลติดต่อ",          c: "#ff9bd2", group: "data" },
       { id: "budget",   title: "Budget PE ค้างกำหนด", c: "#ffc94d", group: "track" },
-      { id: "fttx",     title: "Block FTTx",        c: "#ff6fd8", group: "track" },
-      { id: "pat",      title: "รอเล่ม Pat",          c: "#8f7bff", group: "track", ring: true },
+      { id: "ofc",      title: "True RAUG OFC",      c: "#ff6b7a", group: "track" },
       { id: "quota",    title: "Quota OFC 2026",     c: "#ff8a3d", group: "track" },
       { id: "progress", title: "Progress RAUG 2026", c: "#7dff8a", group: "track" },
-      { id: "meetings", title: "นัดประชุมการไฟฟ้า",    c: "#4aa3ff", group: "meet" },
-      { id: "notes",    title: "บันทึกประชุม",         c: "#c08cff", group: "meet" },
-      { id: "links",    title: "แหล่งเก็บข้อมูล",       c: "#00f0ff", group: "meet", ring: true },
-      { id: "contacts", title: "ข้อมูลติดต่อ",          c: "#ff9bd2", group: "meet" }
+      { id: "pat",      title: "รอเล่ม Pat",          c: "#8f7bff", group: "track", ring: true }
     ];
-    const RING_OF = { field: 0, meet: 1, track: 2, custom: 3 };
-    const RING_CAPS = ["งานภาคสนาม", "ประชุม · ข้อมูล · ติดต่อ", "งานติดตาม · บอทเลขา", "ดาวที่เพิ่มเอง"];
+    /* 4 orbit rings, index = inner → outer (small groups inside for an even spread) + an optional 5th for user-added planets */
+    const RING_OF = { data: 0, meet: 1, field: 2, track: 3, custom: 4 };   // ข้อมูล = innermost (user request)
+    const RING_CAPS = ["ข้อมูล", "ประชุม", "งานภาคสนาม", "ติดตาม", "ดาวที่เพิ่มเอง"];
+    const RING_IDS = [0, 1, 2, 3, 4];
+    const LIST_ORDER = [2, 1, 0, 3, 4];   // planet list / mobile list: งานภาคสนาม → ประชุม → ข้อมูล → ติดตาม → เพิ่มเอง
     const TILT = -8 * Math.PI / 180;
     const POLL_MS = 4 * 60 * 60 * 1000; // ดึงข้อมูลใหม่ทุก 4 ชั่วโมง
 
@@ -1115,7 +1203,7 @@
       state.caps = rings.map((r) => {
         const el = document.createElement("div"); el.className = "cap";
         let txt = RING_CAPS[r];
-        if (r === 3) txt = [...new Set(PLANETS.filter((p) => p.custom).map((p) => p.cap || RING_CAPS[3]))].join(" · ");
+        if (r === 4) txt = [...new Set(PLANETS.filter((p) => p.custom).map((p) => p.cap || RING_CAPS[4]))].join(" · ");
         el.textContent = txt; capsEl.appendChild(el);
         return { ring: r, el };
       });
@@ -1135,7 +1223,7 @@
       });
       // mobile list
       const mg = $("mGroups");
-      [0, 1, 2, 3].forEach((r) => {
+      LIST_ORDER.forEach((r) => {
         const members = PLANETS.filter((p) => RING_OF[p.group] === r);
         if (!members.length) return;
         const cap = document.createElement("div"); cap.className = "cap m-cap";
@@ -1158,7 +1246,7 @@
       });
       // left sidebar planet list
       const pg = $("plistBody"); pg.innerHTML = "";
-      [0, 1, 2, 3].forEach((r) => {
+      LIST_ORDER.forEach((r) => {
         const members = PLANETS.filter((p) => RING_OF[p.group] === r);
         if (!members.length) return;
         const cap = document.createElement("div"); cap.className = "pl-cap";
@@ -1174,9 +1262,9 @@
         });
       });
       // initial angles
-      [0, 1, 2, 3].forEach((r) => {
+      RING_IDS.forEach((r) => {
         const members = PLANETS.filter((p) => RING_OF[p.group] === r);
-        const off = state.compact ? [Math.PI / 8, 3 * Math.PI / 8, 0, Math.PI / 4][r] : [0.35, 2.4, -0.25, 1.1][r];
+        const off = [0.35, 2.4, -0.25, 1.1, 0.7][r];
         members.forEach((p, k) => { p.theta = off + (k * 2 * Math.PI) / members.length; p.ringIdx = r; });
       });
       geom = null;
@@ -1199,6 +1287,12 @@
        so 100% looks like the browser zoomed out to ~60%. Big screens and phones are unchanged. ?nozoomfit turns it off. */
     const ZF = { W: 2360, H: 1000, MIN: 0.4, MAX: 1.6, UMIN: 0.5, UMAX: 1.6, KEY: "space_zoom_user" };
     state.zu = (function () { try { const v = Number(localStorage.getItem(ZF.KEY)); return v >= ZF.UMIN && v <= ZF.UMAX ? v : 1; } catch (e) { return 1; } })();
+    /* Mobile (≤860px): planets default to ~68% of the old size; − / + and pinch change a separate factor (space_zoom_user_m).
+       Above 1 the galaxy canvas grows past the screen and the stage scrolls (pan) instead of overlapping. */
+    const MZ = { AUTO: 0.68, KEY: "space_zoom_user_m" };
+    state.mzu = (function () { try { const v = Number(localStorage.getItem(MZ.KEY)); return v >= ZF.UMIN && v <= ZF.UMAX ? v : 1; } catch (e) { return 1; } })();
+    { const q = Number(params.get("mz")); if (q >= ZF.UMIN && q <= ZF.UMAX) state.mzu = q; }
+    const mobF_ = () => MZ.AUTO * (state.mzu || 1);
     function applyZoomFit_() {
       const html = document.documentElement, vw = window.innerWidth, vh = window.innerHeight;
       let s = 1;
@@ -1208,6 +1302,8 @@
       s = Math.round(s * 1000) / 1000;
       const zl = $("zoomLbl"); if (zl) zl.textContent = Math.round(s * 100) + "%";
       const zc = $("zoomCtl"); if (zc) zc.classList.toggle("manual", Math.abs((state.zu || 1) - 1) > 0.001);
+      const ml = $("mzLbl"); if (ml) ml.textContent = Math.round(mobF_() * 100) + "%";
+      const mc = $("mZoom"); if (mc) mc.classList.toggle("manual", Math.abs((state.mzu || 1) - 1) > 0.001);
       const on = Math.abs(s - 1) > 0.004;
       state.zf = on ? s : 1;
       html.classList.toggle("zfit", on);
@@ -1234,6 +1330,24 @@
       stage.style.top = top + "px";
       stage.style.bottom = bottom + "px";
     }
+    /* the mobile zoom pill sits on the stage's bottom-left corner (scrolls with the page, not with a panned galaxy) */
+    function placeMZoom_() {
+      const mz = $("mZoom");
+      if (!mz) return;
+      if (!state.compact || mz.closest("#mBar")) { mz.style.top = ""; mz.style.left = ""; return; }
+      const op = mz.offsetParent || document.body, ob = op.getBoundingClientRect(), sb = stage.getBoundingClientRect();
+      mz.style.left = Math.round(sb.left - ob.left + 10) + "px";
+      mz.style.top = Math.round(sb.bottom - ob.top - (mz.offsetHeight || 50) - 10) + "px";
+    }
+    /* mobile: the stage fills the space between the header and the bottom bar (nothing floats over planets) */
+    function syncMobileChrome_() {
+      const root = document.documentElement;
+      if (!state.compact) { root.style.removeProperty("--mtop"); root.style.removeProperty("--mbar"); return; }
+      const bar = $("mBar");
+      const top = Math.round(stage.getBoundingClientRect().top + (window.scrollY || 0) - 4);
+      const bh = bar && getComputedStyle(bar).display !== "none" ? Math.ceil(bar.getBoundingClientRect().height) : 0;
+      root.style.setProperty("--mtop", top + "px"); root.style.setProperty("--mbar", bh + "px");
+    }
     function chromeBoxes_() {
       const sb = stage.getBoundingClientRect();
       const z = state.zf || 1;
@@ -1249,6 +1363,7 @@
       };
       add(document.querySelector("header.top"), 6);
       add(document.querySelector("footer.legend"), 6);
+      if (state.compact) add($("mBar"), 4);
       return boxes;
     }
     function circleHitsRect_(cx, cy, r, box) {
@@ -1264,31 +1379,52 @@
     function computeGeom() {
       applyZoomFit_();
       fitStageToChrome_();
-      const W = stage.clientWidth, H = stage.clientHeight;
+      if (state.compact) syncMobileChrome_();
+      let W = stage.clientWidth, H = stage.clientHeight;
       if (!W || !H) return null;
+      const mf = mobF_(), ext = state.compact ? Math.max(1, state.mzu || 1) : 1;
+      const wasPan = !!state.mPan;
+      state.mPan = ext > 1.001;
+      placeMZoom_();
+      stage.classList.toggle("mpan", state.mPan);
+      const sz = $("stageSize");
+      if (state.compact) {
+        W = Math.round(W * ext); H = Math.round(H * ext);
+        if (sz) { sz.style.width = W + "px"; sz.style.height = H + "px"; }
+        net.style.width = W + "px"; net.style.height = H + "px";
+        if (state.mPan && !wasPan) { stage.scrollLeft = Math.max(0, (W - stage.clientWidth) / 2); stage.scrollTop = Math.max(0, (H - stage.clientHeight) / 2); }
+        document.documentElement.style.setProperty("--mlf", Math.max(10, Math.min(12.5, 11 * Math.pow(mf / MZ.AUTO, 0.35))).toFixed(2) + "px");
+      } else {
+        if (sz) { sz.style.width = ""; sz.style.height = ""; }
+        net.style.width = ""; net.style.height = "";
+      }
       const rings = [...new Set(PLANETS.map((p) => p.ringIdx))].sort();
       const nR = rings.length;
       let rxMax, k, fr, sunS, tilt = TILT;
       const radii = {};
       const short = !state.compact && H < 400;
       if (state.compact) {
-        tilt = -74 * Math.PI / 180; k = 0.62;
+        const wide = W > H * 1.25;   // landscape phone: lay the orbits sideways
+        const padY = wide ? 30 : 52;
+        tilt = (wide ? -6 : -74) * Math.PI / 180; k = wide ? Math.max(0.32, Math.min(0.5, (H / 2 - padY) / (W / 2 - 60))) : 0.62;
         const c = Math.cos(tilt), s = Math.sin(tilt);
-        rxMax = Math.min((W / 2 - 36) / Math.sqrt(c * c + k * k * s * s), (H / 2 - 52) / Math.sqrt(s * s + k * k * c * c));
-        fr = nR >= 4 ? [0.46, 0.64, 0.82, 1.0] : [0.52, 0.76, 1.0];
+        rxMax = Math.min((W / 2 - 36) / Math.sqrt(c * c + k * k * s * s), (H / 2 - padY) / Math.sqrt(s * s + k * k * c * c));
+        fr = nR >= 5 ? [0.42, 0.56, 0.71, 0.86, 1.0] : nR >= 4 ? [0.46, 0.64, 0.82, 1.0] : [0.52, 0.76, 1.0];
         rings.forEach((r, i) => { radii[r] = { rx: rxMax * fr[i], ry: rxMax * fr[i] * k }; });
         sunS = Math.max(76, Math.min(104, H * 0.16, radii[rings[0]].ry * 1.35));
+        sunS = Math.round(Math.max(54, sunS * Math.min(1.3, 0.62 + 0.24 * (state.mzu || 1))));
       } else {
         const padX = short ? 88 : 130;
         const padY = short ? 28 : 48;
         const kMin = short ? 0.30 : 0.40;
         rxMax = Math.max(180, Math.min(W / 2 - padX, (H / 2 - padY) / kMin));
         k = Math.min(0.58, Math.max(kMin, (H / 2 - padY) / rxMax));
-        fr = nR >= 4 ? [0.42, 0.62, 0.82, 1.0] : [0.48, 0.73, 1.0];
+        fr = nR >= 5 ? [0.38, 0.535, 0.69, 0.845, 1.0] : nR >= 4 ? [0.42, 0.62, 0.81, 1.0] : [0.48, 0.73, 1.0];
         rings.forEach((r, i) => { radii[r] = { rx: rxMax * fr[i], ry: rxMax * fr[i] * k }; });
         sunS = Math.max(short ? 90 : 108, Math.min(154, H * 0.26, W * 0.13));
       }
-      const g = { W, H, cx: W / 2, cy: H / 2 + (state.compact ? 0 : 4), radii, k, sunS, rings, tilt, short: short, chrome: chromeBoxes_() };
+      const g = { W, H, cx: W / 2, cy: H / 2 + (state.compact ? 0 : 4), radii, k, sunS, rings, tilt, short: short, chrome: chromeBoxes_(),
+        dMin: state.compact ? Math.max(24, Math.round(40 * mf)) : 56, dMax: state.compact ? Math.round(110 * mf) : 110, hiCap: state.compact ? 1 : 1.15 };
       seedThetas_(g);
       const sun = $("sun"); sun.style.setProperty("--s", sunS + "px"); sun.style.left = g.cx + "px"; sun.style.top = g.cy + "px";
       const hit = $("sunHit"); hit.style.width = hit.style.height = sunS + "px"; hit.style.left = g.cx + "px"; hit.style.top = g.cy + "px";
@@ -1305,8 +1441,8 @@
       const cv = $("galaxyCv"); const gs = Math.round(rxMax * 2.35); cv.style.width = gs + "px"; cv.style.height = gs + "px";
       PLANETS.forEach((p) => {
         const n = Number((pdata(p.id) || {}).count) || 0;
-        const base = state.compact ? (58 + Math.min(10, Math.sqrt(n) * 1.5)) : (70 + Math.min(16, Math.sqrt(n) * 2));
-        p.desD = Math.max(56, Math.min(110, base));
+        const base = state.compact ? (58 + Math.min(10, Math.sqrt(n) * 1.5)) * mf : (70 + Math.min(16, Math.sqrt(n) * 2));
+        p.desD = state.compact ? Math.max(g.dMin, Math.min(g.dMax, base)) : Math.max(56, Math.min(110, base));
       });
       resolveGalaxy_(g, true);
       PLANETS.forEach((p) => {
@@ -1325,22 +1461,12 @@
       return g;
     }
     function seedThetas_(g) {
-      const short = g.short || state.compact;
-      const packs = short ? {
-        0: [-0.42, 0.42, Math.PI],
-        1: [Math.PI - 0.42, Math.PI + 0.42, 0.38, -0.38],
-        2: [0.85, -0.85, Math.PI - 0.88, Math.PI + 0.88],
-        3: [1.2, -1.2, Math.PI + 1.2]
-      } : {
-        0: [-0.5, 0.55, Math.PI],
-        1: [1.05, 2.15, 3.55, 5.15],
-        2: [0.2, 1.7, 3.25, 4.85],
-        3: [0.8, 2.6, 4.4]
-      };
-      [0, 1, 2, 3].forEach((r) => {
+      /* even spacing on every ring, each ring rotated (staggered) so neighbours on adjacent rings don't line up */
+      const OFF = [0, Math.PI / 2, Math.PI / 4, Math.PI / 10, Math.PI / 12];
+      RING_IDS.forEach((r) => {
         const members = PLANETS.filter((p) => p.ringIdx === r);
-        const seed = packs[r] || members.map((_, i) => (i * 2 * Math.PI) / Math.max(1, members.length));
-        members.forEach((p, i) => { p.theta = seed[i % seed.length] + (i >= seed.length ? i * 0.2 : 0); });
+        const n = Math.max(1, members.length);
+        members.forEach((p, i) => { p.theta = OFF[r] + (i * 2 * Math.PI) / n; });
       });
     }
     function visScale_(depth) { return 0.86 + 0.14 * (depth + 1) / 2; }
@@ -1420,12 +1546,13 @@
       const GAP = 16;
       const apply = (scale) => {
         PLANETS.forEach((p) => {
-          p.d = Math.round(Math.max(56, Math.min(110, p.desD * scale)));
+          p.d = Math.round(Math.max(g.dMin || 56, Math.min(g.dMax || 110, p.desD * scale)));
         });
       };
-      let lo = 56 / Math.max(...PLANETS.map((p) => p.desD), 56);
-      let hi = 110 / Math.max(...PLANETS.map((p) => p.desD), 56);
-      hi = Math.min(1.15, hi);
+      const dMin = g.dMin || 56, dMax = g.dMax || 110;
+      let lo = dMin / Math.max(...PLANETS.map((p) => p.desD), dMin);
+      let hi = dMax / Math.max(...PLANETS.map((p) => p.desD), dMin);
+      hi = Math.min(g.hiCap || 1.15, hi);
       lo = Math.max(0.55, lo);
       let bestScale = lo, bestBad = 1e9;
       const tryScale = (sc) => {
@@ -1447,7 +1574,7 @@
         }
         PLANETS.forEach((p) => { p.d = p._okD; p.theta = p._okTheta; });
         if (bestBad > 0.5) {
-          const sunMin = state.compact ? 68 : (g.short ? 80 : 96);
+          const sunMin = state.compact ? Math.min(g.sunS, 50) : (g.short ? 80 : 96);
           while (bestBad > 0.5 && g.sunS > sunMin) {
             g.sunS -= 4;
             $("sun").style.setProperty("--s", g.sunS + "px");
@@ -1656,6 +1783,13 @@
       $("stNext").title = up ? up.date + " " + (up.time || "") + " " + up.title : "";
       const ci = pdata("checkin"); $("stCheck").textContent = ci && ci.ok !== false ? countText(ci.today != null ? ci.today : ci.count) : "–";
       const pat = pdata("pat"); $("stPat").textContent = pat && pat.ok !== false ? countText(pat.count) : "–";
+      { // Planwork พรุ่งนี้ (tomorrow), amber when > 0
+        const pwd = pdata("planwork"), ok = pwd && pwd.ok !== false;
+        const nT = ok ? (pwd.tomorrow_rows || []).length : null, nD = ok ? (pwd.today_rows || []).length : null;
+        $("stPw").textContent = ok ? String(nT) : "–";
+        const card = $("stPwCard"); card.classList.toggle("hot", !!nT);
+        card.title = ok ? "Planwork วันนี้ " + nD + " · พรุ่งนี้ " + nT + " — กดเพื่อเปิดดาว Planwork" : "เปิดดาว Planwork";
+      }
       tickerItems = [];
       const notes = pdata("notes");
       if (notes && notes.notes && notes.notes[0]) tickerItems.push("บันทึกประชุม: " + notes.notes[0].title + " · " + notes.notes[0].date);
@@ -1885,12 +2019,25 @@
       notes(b, d) {
         const ns = d.notes || [];
         if (d.missing || !ns.length) { b.innerHTML = AF.html("notes") + `<div class="group-title">บันทึกประชุม</div>` + none(d.message || "ยังไม่มีบันทึก"); AF.bind(b, "notes"); return; }
-        const sel = Math.min(state.noteIndex || 0, ns.length - 1), n = ns[sel];
-        const who = [n.who ? "ผู้บันทึก " + n.who : "", n.chat ? n.chat : ""].filter(Boolean).join(" · ");
+        /* accordion: the detail opens directly UNDER the clicked note; click again to close; one open at a time */
+        const sel = state.noteIndex == null || state.noteIndex < 0 ? -1 : Math.min(state.noteIndex, ns.length - 1);
+        const detail = (n, i) => {
+          const who = [n.who ? "ผู้บันทึก " + n.who : "", n.chat ? n.chat : ""].filter(Boolean).join(" · ");
+          return `<div class="note-acc${i === sel ? " open" : ""}" id="noteAcc${i}" role="region" aria-label="รายละเอียด ${esc(n.title)}"><div class="note-acc-in"><article class="note-detail"><h3>รายละเอียดจากการประชุม</h3><pre>${esc(n.detail)}</pre>${who ? `<div class="who">${esc(who)}</div>` : ""}</article></div></div>`;
+        };
         b.innerHTML = AF.html("notes") + `<div class="group-title">บันทึกล่าสุด — กดเพื่ออ่านรายละเอียด</div>` +
-          ns.slice(0, 12).map((it, i) => `<button type="button" class="note-item" data-note="${i}" aria-pressed="${i === sel}"><span class="d">${esc(it.date)}</span><span class="t">${esc(it.title)}</span></button>`).join("") +
-          `<article class="note-detail"><h3>รายละเอียดจากการประชุม</h3><pre>${esc(n.detail)}</pre>${who ? `<div class="who">${esc(who)}</div>` : ""}</article>`;
-        b.querySelectorAll("[data-note]").forEach((btn) => btn.addEventListener("click", () => { state.noteIndex = Number(btn.dataset.note); R.notes(b, d); }));
+          ns.slice(0, 12).map((it, i) => `<button type="button" class="note-item" data-note="${i}" aria-expanded="${i === sel}" aria-controls="noteAcc${i}" aria-pressed="${i === sel}"><span class="d">${esc(it.date)}</span><span class="t">${esc(it.title)}</span><span class="chev" aria-hidden="true">›</span></button>` + detail(it, i)).join("");
+        b.querySelectorAll("[data-note]").forEach((btn) => btn.addEventListener("click", () => {
+          const i = Number(btn.dataset.note), wasOpen = btn.getAttribute("aria-expanded") === "true";
+          b.querySelectorAll("[data-note]").forEach((o) => { o.setAttribute("aria-expanded", "false"); o.setAttribute("aria-pressed", "false"); });
+          b.querySelectorAll(".note-acc.open").forEach((a) => a.classList.remove("open"));
+          state.noteIndex = wasOpen ? -1 : i;
+          if (wasOpen) return;
+          btn.setAttribute("aria-expanded", "true"); btn.setAttribute("aria-pressed", "true");
+          const acc = $("noteAcc" + i); acc.classList.add("open");
+          setTimeout(() => { const r = acc.getBoundingClientRect(), vb = (b.closest(".panel-body, .panel") || b).getBoundingClientRect();
+            if (r.bottom > vb.bottom || btn.getBoundingClientRect().top < vb.top) btn.scrollIntoView({ block: "start", behavior: state.reduced ? "auto" : "smooth" }); }, 280);
+        }));
         AF.bind(b, "notes");
       },
       custom(b, d) {
@@ -2522,6 +2669,26 @@
     function openAdd(cfg) { $("addWrap").hidden = false; document.body.classList.add("modal-open"); fillForm(cfg); renderMine(); setTimeout(() => $("f_title").focus(), 30); }
     function closeAdd() { $("addWrap").hidden = true; document.body.classList.remove("modal-open"); }
     $("btnAdd").addEventListener("click", () => openAdd());
+    /* mobile ⋯ menu (refresh / add / pause / logout) */
+    (function () {
+      const btn = $("btnMore"), menu = $("mMenu");
+      const setOpen = (o) => { menu.hidden = !o; btn.setAttribute("aria-expanded", o ? "true" : "false");
+        if (o) { $("mMotionT").textContent = state.frozen ? "เล่นการหมุน" : "หยุดการหมุน"; $("mLogout").hidden = typeof window.__pagesLogout !== "function"; const f = menu.querySelector("button:not([hidden])"); if (f) f.focus(); } };
+      btn.addEventListener("click", (e) => { e.stopPropagation(); setOpen(menu.hidden); });
+      document.addEventListener("click", (e) => { if (!menu.hidden && !menu.contains(e.target) && e.target !== btn) setOpen(false); });
+      document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !menu.hidden) { setOpen(false); btn.focus(); } });
+      menu.addEventListener("click", (e) => {
+        const b = e.target.closest("button[data-m]"); if (!b) return;
+        setOpen(false);
+        const m = b.dataset.m;
+        if (m === "refresh") $("btnRefresh").click();
+        else if (m === "add") $("btnAdd").click();
+        else if (m === "motion") $("toggleMotion").click();
+        else if (m === "logout" && typeof window.__pagesLogout === "function") window.__pagesLogout();
+      });
+    })();
+    { const c = $("stPwCard"); const go = () => openPanel("planwork");
+      c.addEventListener("click", go); c.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); } }); }
     $("addClose").addEventListener("click", closeAdd);
     $("addWrap").addEventListener("click", (e) => { if (e.target === $("addWrap")) closeAdd(); });
     $("addNew").addEventListener("click", () => fillForm());
@@ -2652,6 +2819,53 @@
     $("zoomOut").addEventListener("click", () => setZoomUser_((state.zu || 1) / 1.1));
     $("zoomIn").addEventListener("click", () => setZoomUser_((state.zu || 1) * 1.1));
     $("zoomLbl").addEventListener("click", () => setZoomUser_(1));
+    function setZoomUserM_(f, anchor) {
+      const old = state.mzu || 1;
+      state.mzu = Math.max(ZF.UMIN, Math.min(ZF.UMAX, Math.round(f * 100) / 100));
+      try { if (Math.abs(state.mzu - 1) < 0.001) localStorage.removeItem(MZ.KEY); else localStorage.setItem(MZ.KEY, String(state.mzu)); } catch (e) {}
+      // keep the point under the fingers (or the centre) in view after the canvas grows/shrinks
+      const vw = stage.clientWidth, vh = stage.clientHeight, ax = anchor ? anchor.x : vw / 2, ay = anchor ? anchor.y : vh / 2;
+      const fx = (stage.scrollLeft + ax) / Math.max(1, vw * Math.max(1, old)), fy = (stage.scrollTop + ay) / Math.max(1, vh * Math.max(1, old));
+      applyZoomFit_(); relayout_();
+      const e2 = Math.max(1, state.mzu);
+      stage.scrollLeft = Math.max(0, fx * vw * e2 - ax); stage.scrollTop = Math.max(0, fy * vh * e2 - ay);
+    }
+    $("mzOut").addEventListener("click", () => setZoomUserM_((state.mzu || 1) / 1.15));
+    $("mzIn").addEventListener("click", () => setZoomUserM_((state.mzu || 1) * 1.15));
+    $("mzLbl").addEventListener("click", () => setZoomUserM_(1));
+    window.__setZoomUserM = setZoomUserM_;
+    try { new ResizeObserver(() => placeMZoom_()).observe(document.body); } catch (e) {}
+    try { let lastH = 0; new ResizeObserver(() => { const h = document.querySelector("header.top").offsetHeight; if (state.compact && h !== lastH) { lastH = h; relayout_(); } }).observe(document.querySelector("header.top")); } catch (e) {}
+    window.addEventListener("resize", placeMZoom_);
+    /* Pinch on the galaxy (mobile): live preview with a CSS scale, then one relayout at gesture end (no overlaps). */
+    (function () {
+      let p0 = null, ratio = 1, lastPinch = 0;
+      const dist = (t) => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
+      stage.addEventListener("touchstart", (e) => {
+        if (!state.compact || e.touches.length !== 2) return;
+        const sb = stage.getBoundingClientRect();
+        const mx = (e.touches[0].clientX + e.touches[1].clientX) / 2 - sb.left, my = (e.touches[0].clientY + e.touches[1].clientY) / 2 - sb.top;
+        p0 = { d: dist(e.touches), z: state.mzu || 1, x: mx, y: my }; ratio = 1; stage.classList.add("pinching");
+      }, { passive: true });
+      stage.addEventListener("touchmove", (e) => {
+        if (!p0 || e.touches.length !== 2) return;
+        e.preventDefault();
+        ratio = Math.max(ZF.UMIN / p0.z, Math.min(ZF.UMAX / p0.z, dist(e.touches) / (p0.d || 1)));
+        stage.style.transformOrigin = p0.x.toFixed(0) + "px " + p0.y.toFixed(0) + "px";
+        stage.style.scale = ratio.toFixed(3);
+        const ml = $("mzLbl"); if (ml) ml.textContent = Math.round(MZ.AUTO * p0.z * ratio * 100) + "%";
+      }, { passive: false });
+      const end = (e) => {
+        if (!p0 || (e.touches && e.touches.length >= 2)) return;
+        stage.style.scale = ""; stage.style.transformOrigin = "";
+        stage.classList.remove("pinching");
+        const z0 = p0.z, anchor = { x: p0.x, y: p0.y }; p0 = null;
+        if (Math.abs(ratio - 1) > 0.03) { lastPinch = Date.now(); setZoomUserM_(z0 * ratio, anchor); } else applyZoomFit_();
+      };
+      stage.addEventListener("touchend", end); stage.addEventListener("touchcancel", end);
+      // a pinch must not also open a planet
+      stage.addEventListener("click", (e) => { if (Date.now() - lastPinch < 450) { e.stopPropagation(); e.preventDefault(); } }, true);
+    })();
     window.__setZoomUser = setZoomUser_;
     /* ---------- Planet list sidebar (left) ---------- */
     const PL_KEY = "space_plist_open";
