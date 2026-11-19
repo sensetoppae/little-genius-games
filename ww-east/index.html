@@ -344,6 +344,39 @@
     html.zfit .ticker { font-size: calc(12.5px * var(--zfk, 1)); }
     html.zfit .ticker .upd { font-size: calc(11.5px * var(--zfk, 1)); }
     html.zfit .legend { font-size: calc(12px * var(--zfk, 1)); }
+    html.zfit header.top { zoom: var(--zfk, 1); }
+    .zoomctl { display: inline-flex; align-items: center; gap: 3px; margin-left: 2px; padding-left: 8px; border-left: 1px solid var(--line); flex: none; }
+    .zoomctl button { height: 26px; min-width: 26px; padding: 0 6px; border: 1px solid rgba(170,160,255,.25); border-radius: 7px; background: rgba(20,16,52,.6);
+      color: var(--ink); font: inherit; font-size: 16px; font-weight: 600; line-height: 1; cursor: pointer; }
+    .zoomctl button:hover { border-color: rgba(200,190,255,.6); background: rgba(60,50,120,.6); }
+    .zoomctl .zl { min-width: 48px; font-size: 12px; font-weight: 500; color: var(--mute); }
+    .zoomctl.manual .zl { color: #ffd27a; border-color: rgba(255,210,122,.5); }
+    .plist-btn { margin-top: 6px; height: 30px; font-size: 13px; border-color: rgba(185,168,255,.45); }
+    body.plist-open .plist-btn { border-color: rgba(255,210,122,.55); color: #ffd27a; }
+    .plist { position: fixed; z-index: 10; left: 12px; top: 120px; bottom: 70px; width: 228px; display: flex; flex-direction: column; padding: 0; overflow: hidden; }
+    .plist[hidden] { display: none; }
+    .pl-head { display: flex; align-items: center; justify-content: space-between; padding: 9px 8px 7px 14px; border-bottom: 1px solid var(--line); font-size: 13.5px; }
+    .pl-body { overflow-y: auto; padding: 4px 6px 10px; flex: 1; }
+    .pl-cap { font-size: 10.5px; letter-spacing: .8px; color: #b8b0f0; padding: 9px 8px 3px; }
+    .pl-item { display: flex; align-items: center; gap: 9px; width: 100%; padding: 6px 8px; border: 1px solid transparent; border-radius: 10px; background: none;
+      color: var(--ink); font: inherit; font-size: 13px; text-align: left; cursor: pointer; }
+    .pl-item:hover, .pl-item.on { background: color-mix(in srgb, var(--c) 18%, transparent); border-color: color-mix(in srgb, var(--c) 45%, transparent); }
+    .pl-dot { flex: none; width: 11px; height: 11px; border-radius: 50%; background: var(--c); box-shadow: 0 0 8px var(--c); }
+    .pl-t { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pl-n { flex: none; min-width: 26px; padding: 1px 7px; border-radius: 999px; font-size: 11.5px; font-weight: 700; text-align: center; background: rgba(40,34,90,.8); border: 1px solid rgba(170,160,255,.3); }
+    .pl-item.is-alert .pl-n { background: linear-gradient(180deg, #ff6a7c, #e22a48); border-color: #ff9aa6; }
+    .pl-item.is-watch .pl-n { border-color: #ffd27a; color: #ffd27a; }
+    .plist-shade { position: fixed; inset: 0; z-index: 12; background: rgba(3,2,14,.5); }
+    .plist-shade[hidden] { display: none; }
+    .planet.picked .halo { animation: pickPulse .55s ease-in-out 4; }
+    @keyframes pickPulse { 50% { transform: scale(1.6); opacity: 1; box-shadow: 0 0 40px 14px var(--c); } }
+    @media (max-width: 860px) {
+      .zoomctl { display: none; }
+      .plist-btn { margin-top: 0; height: 30px; padding: 0 9px; } .plist-btn span { display: none; }
+      .brand > div:nth-child(2) { display: flex; align-items: center; gap: 8px; }
+      .plist { z-index: 13; left: 0; top: 0; bottom: 0; width: min(300px, 84vw); border-radius: 0 16px 16px 0; padding-top: env(safe-area-inset-top); }
+      .pl-item { padding: 10px 10px; font-size: 14.5px; }
+    }
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { animation: none !important; transition: none !important; }
     }
@@ -632,6 +665,9 @@
       <div>
         <h1>จักรวาล WW RAUG East <span class="badge" id="exampleBadge" hidden>ตัวอย่าง</span></h1>
         <p id="subline">ศูนย์รวมสถานะงานทุกระบบ · อ่านจากชีตอย่างเดียว</p>
+        <button type="button" class="btn plist-btn" id="btnPlist" aria-controls="plist" aria-expanded="false" title="เปิด/ปิด รายการดวงดาว">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 4h10M3 8h10M3 12h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><span>รายการดวงดาว</span>
+        </button>
       </div>
     </div>
     <section class="hud" aria-label="สรุปภาพรวม">
@@ -667,6 +703,11 @@
         <span class="tag"><i></i>ล่าสุด</span>
         <span class="msg" id="tickerMsg">—</span>
         <span class="upd" id="updLabel"></span>
+        <span class="zoomctl" id="zoomCtl" role="group" aria-label="ขนาดจักรวาล">
+          <button type="button" id="zoomOut" aria-label="ย่อจักรวาล" title="ย่อ (เล็กลง 10%)">−</button>
+          <button type="button" id="zoomLbl" class="zl" aria-label="กลับเป็นขนาดอัตโนมัติ" title="ขนาดตอนนี้ · กดเพื่อกลับเป็นขนาดอัตโนมัติ">100%</button>
+          <button type="button" id="zoomIn" aria-label="ขยายจักรวาล" title="ขยาย (ใหญ่ขึ้น 10%)">+</button>
+        </span>
       </div>
     </section>
   </header>
@@ -706,6 +747,12 @@
     <span>กดดาวเพื่อดูรายละเอียด และ Dashboard</span>
   </footer>
   </div>
+  <div class="plist-shade" id="plistShade" hidden></div>
+  <aside class="plist glass" id="plist" aria-label="รายการดวงดาว" hidden>
+    <div class="pl-head"><b>รายการดวงดาว</b><button type="button" class="icon-btn" id="plistClose" aria-label="ปิดรายการดวงดาว" title="ปิดรายการ">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3.2 3.2l9.6 9.6M12.8 3.2l-9.6 9.6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></button></div>
+    <div class="pl-body" id="plistBody"></div>
+  </aside>
 
   <div class="backdrop" id="backdrop" hidden></div>
   <aside class="panel" id="panel" role="dialog" aria-modal="true" aria-labelledby="panelTitle" hidden>
@@ -1101,6 +1148,23 @@
           mg.appendChild(m); p.mEl = m;
         });
       });
+      // left sidebar planet list
+      const pg = $("plistBody"); pg.innerHTML = "";
+      [0, 1, 2, 3].forEach((r) => {
+        const members = PLANETS.filter((p) => RING_OF[p.group] === r);
+        if (!members.length) return;
+        const cap = document.createElement("div"); cap.className = "pl-cap";
+        cap.textContent = (state.caps.find((c) => c.ring === r) || {}).el.textContent; pg.appendChild(cap);
+        members.forEach((p) => {
+          const it = document.createElement("button");
+          it.type = "button"; it.className = "pl-item"; it.style.setProperty("--c", p.c); it.dataset.id = p.id;
+          it.innerHTML = `<i class="pl-dot"></i><span class="pl-t">${esc(p.title)}</span><span class="pl-n">–</span>`;
+          it.title = "เปิด " + p.title;
+          it.addEventListener("click", () => pickPlanet_(p.id));
+          it.addEventListener("mouseenter", () => setHover(p.id)); it.addEventListener("mouseleave", () => setHover(null));
+          pg.appendChild(it); p.plEl = it;
+        });
+      });
       // initial angles
       [0, 1, 2, 3].forEach((r) => {
         const members = PLANETS.filter((p) => RING_OF[p.group] === r);
@@ -1125,13 +1189,18 @@
     }
     /* Zoom-fit: below ZF.W x ZF.H (e.g. a 1024x555 laptop at 100%) lay the galaxy out on a virtual canvas and scale it down,
        so 100% looks like the browser zoomed out to ~60%. Big screens and phones are unchanged. ?nozoomfit turns it off. */
-    const ZF = { W: 1500, H: 640, MIN: 0.5 };
+    const ZF = { W: 2360, H: 1000, MIN: 0.4, MAX: 1.6, UMIN: 0.5, UMAX: 1.6, KEY: "space_zoom_user" };
+    state.zu = (function () { try { const v = Number(localStorage.getItem(ZF.KEY)); return v >= ZF.UMIN && v <= ZF.UMAX ? v : 1; } catch (e) { return 1; } })();
     function applyZoomFit_() {
       const html = document.documentElement, vw = window.innerWidth, vh = window.innerHeight;
       let s = 1;
-      if (!mqCompact.matches && !params.has("nozoomfit") && vw > 0 && vh > 0) s = Math.max(ZF.MIN, Math.min(1, vw / ZF.W, vh / ZF.H));
-      s = Math.floor(s * 1000) / 1000;
-      const on = s < 0.995;
+      const enabled = !mqCompact.matches && !params.has("nozoomfit") && vw > 0 && vh > 0;
+      state.zfAuto = enabled ? Math.max(ZF.MIN, Math.min(1, vw / ZF.W, vh / ZF.H)) : 1;
+      if (enabled) s = Math.max(ZF.MIN, Math.min(ZF.MAX, state.zfAuto * (state.zu || 1)));
+      s = Math.round(s * 1000) / 1000;
+      const zl = $("zoomLbl"); if (zl) zl.textContent = Math.round(s * 100) + "%";
+      const zc = $("zoomCtl"); if (zc) zc.classList.toggle("manual", Math.abs((state.zu || 1) - 1) > 0.001);
+      const on = Math.abs(s - 1) > 0.004;
       state.zf = on ? s : 1;
       html.classList.toggle("zfit", on);
       if (on) {
@@ -1139,11 +1208,11 @@
         html.style.setProperty("--zfw", (vw / s).toFixed(2) + "px");
         html.style.setProperty("--zfh", (vh / s).toFixed(2) + "px");
         // gently counter-scale label text so it stays readable (about 9px+ on screen)
-        html.style.setProperty("--zfk", Math.min(1.2, Math.pow(1 / s, 0.42)).toFixed(3));
+        html.style.setProperty("--zfk", Math.max(1, Math.min(1.45, Math.pow(1 / s, 0.45))).toFixed(3));
       } else { ["--zfs", "--zfw", "--zfh", "--zfk"].forEach((k) => html.style.removeProperty(k)); }
     }
     function fitStageToChrome_() {
-      if (state.compact) { stage.style.top = ""; stage.style.bottom = ""; return; }
+      if (state.compact) { stage.style.top = ""; stage.style.bottom = ""; stage.style.left = ""; return; }
       const head = document.querySelector("header.top");
       const leg = document.querySelector("footer.legend");
       const z = state.zf || 1;
@@ -1152,6 +1221,8 @@
       if (visEl_(head)) top = Math.max(80, Math.ceil(head.getBoundingClientRect().bottom / z) + 8);
       if (visEl_(leg)) bottom = Math.max(48, Math.ceil(vh - leg.getBoundingClientRect().top / z) + 8);
       if (vh - top - bottom < 160) bottom = Math.max(36, vh - top - 160);
+      const pl = $("plist");
+      stage.style.left = (state.plOpen && pl && visEl_(pl)) ? Math.ceil(pl.getBoundingClientRect().right / z + 10) + "px" : "";
       stage.style.top = top + "px";
       stage.style.bottom = bottom + "px";
     }
@@ -1544,6 +1615,11 @@
         const rb = p.mEl.querySelector(".m-ref"); if (rb) rb.disabled = state.refreshing.has(p.id);
       }
       p.el.querySelector(".count").textContent = countText(d.count);
+      if (p.plEl) {
+        p.plEl.classList.remove("is-ok", "is-alert", "is-watch", "is-error"); p.plEl.classList.add("is-" + status);
+        p.plEl.querySelector(".pl-n").textContent = countText(d.count);
+        p.plEl.title = p.title + (lbl ? " · " + lbl : "");
+      }
       p.el.setAttribute("aria-label", p.title + " " + lbl);
       if (p.link) {
         p.link.classList.toggle("alert", status === "alert");
@@ -2528,8 +2604,49 @@
       }
     })();
 
-    let rt = 0; addEventListener("resize", () => { applyZoomFit_(); clearTimeout(rt); rt = setTimeout(() => { geom = null; }, 60); });
+    let rt = 0; addEventListener("resize", () => { applyZoomFit_(); placePlist_(); clearTimeout(rt); rt = setTimeout(() => { geom = null; placePlist_(); }, 60); });
     applyZoomFit_();
+    function setZoomUser_(f) {
+      state.zu = Math.max(ZF.UMIN, Math.min(ZF.UMAX, Math.round(f * 100) / 100));
+      try { if (Math.abs(state.zu - 1) < 0.001) localStorage.removeItem(ZF.KEY); else localStorage.setItem(ZF.KEY, String(state.zu)); } catch (e) {}
+      applyZoomFit_(); relayout_();
+    }
+    function relayout_() { geom = null; placePlist_(); if (PLANETS.length) render(); placePlist_(); }
+    $("zoomOut").addEventListener("click", () => setZoomUser_((state.zu || 1) / 1.1));
+    $("zoomIn").addEventListener("click", () => setZoomUser_((state.zu || 1) * 1.1));
+    $("zoomLbl").addEventListener("click", () => setZoomUser_(1));
+    window.__setZoomUser = setZoomUser_;
+    /* ---------- Planet list sidebar (left) ---------- */
+    const PL_KEY = "space_plist_open";
+    state.plOpen = (function () { if (mqCompact.matches) return false; try { return localStorage.getItem(PL_KEY) === "1"; } catch (e) { return false; } })();
+    if (params.get("plist") === "1") state.plOpen = true; else if (params.get("plist") === "0") state.plOpen = false;
+    function placePlist_() {
+      const el = $("plist"); if (!el) return;
+      document.body.classList.toggle("plist-open", !!state.plOpen);
+      el.hidden = !state.plOpen; $("plistShade").hidden = !(state.plOpen && state.compact);
+      $("btnPlist").setAttribute("aria-expanded", state.plOpen ? "true" : "false");
+      if (!state.plOpen || state.compact) { el.style.top = ""; el.style.bottom = ""; return; }
+      const head = document.querySelector("header.top"), leg = document.querySelector("footer.legend");
+      const top = visEl_(head) ? Math.ceil(head.getBoundingClientRect().bottom) + 8 : 12;
+      const bot = visEl_(leg) ? Math.ceil(window.innerHeight - leg.getBoundingClientRect().top) + 8 : 12;
+      el.style.top = top + "px"; el.style.bottom = Math.max(8, bot) + "px";
+    }
+    function setPlist_(open) {
+      state.plOpen = !!open;
+      if (!state.compact) { try { localStorage.setItem(PL_KEY, state.plOpen ? "1" : "0"); } catch (e) {} }
+      relayout_();
+    }
+    function pickPlanet_(id) {
+      const p = PLANETS.find((x) => x.id === id); if (!p) return;
+      if (state.compact) { state.plOpen = false; placePlist_(); }
+      if (p.el) { p.el.classList.remove("picked"); void p.el.offsetWidth; p.el.classList.add("picked"); setTimeout(() => p.el.classList.remove("picked"), 2200); }
+      PLANETS.forEach((q) => q.plEl && q.plEl.classList.toggle("on", q.id === id));
+      openPanel(id);
+    }
+    $("btnPlist").addEventListener("click", () => setPlist_(!state.plOpen));
+    $("plistClose").addEventListener("click", () => setPlist_(false));
+    $("plistShade").addEventListener("click", () => setPlist_(false));
+    placePlist_();
     setFrozen(state.frozen);
     document.addEventListener("visibilitychange", () => stars.setRunning(!document.hidden && !state.frozen && !state.reduced));
 
