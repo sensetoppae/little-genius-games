@@ -232,6 +232,12 @@
     .row { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 10px; background: rgba(255,255,255,.035); margin-bottom: 6px; border: 1px solid rgba(255,255,255,.04); }
     .row .t { font-size: 13.5px; font-weight: 500; } .row .t.code { font-variant-numeric: tabular-nums; }
     .row .s, .panel-body > .s { font-size: 12px; color: var(--mute); margin-top: 2px; }
+    .lk-def { font-style: normal; font-size: 10.5px; font-weight: 500; margin-left: 6px; padding: 1px 6px; border-radius: 99px; background: rgba(0,240,255,.12); color: #8ff6ff; vertical-align: 1px; }
+    .row.qrow { align-items: flex-start; } .row .s b.neg { color: #ff8b98; }
+    .gbar { position: relative; height: 7px; border-radius: 99px; background: rgba(255,255,255,.08); margin: 6px 0 4px; overflow: hidden; }
+    .gbar i { position: absolute; inset: 0 auto 0 0; border-radius: 99px; background: #3ee6a8; }
+    .gbar.watch i { background: #ffb547; } .gbar.alert i { background: #ff5468; }
+    .gbar b { position: absolute; top: -2px; bottom: -2px; width: 2px; background: #fff; opacity: .85; }
     .chip { flex: none; font-size: 11.5px; font-weight: 500; padding: 3px 9px; border-radius: 999px; background: rgba(255,255,255,.07); color: #dcdaf8; white-space: nowrap; }
     .chip.alert { background: rgba(255, 84, 104, .16); color: #ff9aa6; } .chip.watch { background: rgba(255, 181, 71, .16); color: #ffd27a; } .chip.ok { background: rgba(62, 230, 168, .14); color: #8ff3cd; }
     .meet-item { display: flex; justify-content: space-between; gap: 10px; align-items: center; padding: 10px 12px; border-radius: 10px; background: rgba(255,255,255,.035); margin-bottom: 6px; }
@@ -325,8 +331,57 @@
       .panel-foot .btn { height: 46px; }
     }
     @media (min-width: 861px) and (max-width: 1180px) {
-      .hud { min-width: 0; } .stat b { font-size: 17px; }
-      .brand p { display: none; }
+      html:not(.zfit) .hud { min-width: 0; } html:not(.zfit) .stat b { font-size: 17px; }
+      html:not(.zfit) .brand p { display: none; }
+    }
+    /* ---------- Zoom-fit: small desktop screens lay out on a bigger virtual canvas, then scale down uniformly ---------- */
+    .zfit-root { display: contents; }
+    html.zfit .zfit-root { display: block; position: fixed; left: 0; top: 0; z-index: 5; width: var(--zfw, 100vw); height: var(--zfh, 100vh);
+      transform: scale(var(--zfs, 1)); transform-origin: 0 0; pointer-events: none; }
+    html.zfit .zfit-root > :not(.top) { pointer-events: auto; }
+    html.zfit .card { max-width: calc(200px * var(--zfk, 1)); }
+    html.zfit .card.compact { max-width: calc(168px * var(--zfk, 1)); }
+    html.zfit .card .tt { font-size: calc(13px * var(--zfk, 1)); }
+    html.zfit .card .st { font-size: calc(11.5px * var(--zfk, 1)); }
+    html.zfit .card .bdg { font-size: calc(10.5px * var(--zfk, 1)); }
+    html.zfit .cap { font-size: calc(11px * var(--zfk, 1)); }
+    html.zfit .planet .count { font-size: calc(12px * var(--zfk, 1)); }
+    html.zfit .stat span { font-size: calc(11.5px * var(--zfk, 1)); }
+    html.zfit .ticker { font-size: calc(12.5px * var(--zfk, 1)); }
+    html.zfit .ticker .upd { font-size: calc(11.5px * var(--zfk, 1)); }
+    html.zfit .legend { font-size: calc(12px * var(--zfk, 1)); }
+    html.zfit header.top { zoom: var(--zfk, 1); }
+    .zoomctl { display: inline-flex; align-items: center; gap: 3px; margin-left: 2px; padding-left: 8px; border-left: 1px solid var(--line); flex: none; }
+    .zoomctl button { height: 26px; min-width: 26px; padding: 0 6px; border: 1px solid rgba(170,160,255,.25); border-radius: 7px; background: rgba(20,16,52,.6);
+      color: var(--ink); font: inherit; font-size: 16px; font-weight: 600; line-height: 1; cursor: pointer; }
+    .zoomctl button:hover { border-color: rgba(200,190,255,.6); background: rgba(60,50,120,.6); }
+    .zoomctl .zl { min-width: 48px; font-size: 12px; font-weight: 500; color: var(--mute); }
+    .zoomctl.manual .zl { color: #ffd27a; border-color: rgba(255,210,122,.5); }
+    .plist-btn { margin-top: 6px; height: 30px; font-size: 13px; border-color: rgba(185,168,255,.45); }
+    body.plist-open .plist-btn { border-color: rgba(255,210,122,.55); color: #ffd27a; }
+    .plist { position: fixed; z-index: 10; left: 12px; top: 120px; bottom: 70px; width: 228px; display: flex; flex-direction: column; padding: 0; overflow: hidden; }
+    .plist[hidden] { display: none; }
+    .pl-head { display: flex; align-items: center; justify-content: space-between; padding: 9px 8px 7px 14px; border-bottom: 1px solid var(--line); font-size: 13.5px; }
+    .pl-body { overflow-y: auto; padding: 4px 6px 10px; flex: 1; }
+    .pl-cap { font-size: 10.5px; letter-spacing: .8px; color: #b8b0f0; padding: 9px 8px 3px; }
+    .pl-item { display: flex; align-items: center; gap: 9px; width: 100%; padding: 6px 8px; border: 1px solid transparent; border-radius: 10px; background: none;
+      color: var(--ink); font: inherit; font-size: 13px; text-align: left; cursor: pointer; }
+    .pl-item:hover, .pl-item.on { background: color-mix(in srgb, var(--c) 18%, transparent); border-color: color-mix(in srgb, var(--c) 45%, transparent); }
+    .pl-dot { flex: none; width: 11px; height: 11px; border-radius: 50%; background: var(--c); box-shadow: 0 0 8px var(--c); }
+    .pl-t { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pl-n { flex: none; min-width: 26px; padding: 1px 7px; border-radius: 999px; font-size: 11.5px; font-weight: 700; text-align: center; background: rgba(40,34,90,.8); border: 1px solid rgba(170,160,255,.3); }
+    .pl-item.is-alert .pl-n { background: linear-gradient(180deg, #ff6a7c, #e22a48); border-color: #ff9aa6; }
+    .pl-item.is-watch .pl-n { border-color: #ffd27a; color: #ffd27a; }
+    .plist-shade { position: fixed; inset: 0; z-index: 12; background: rgba(3,2,14,.5); }
+    .plist-shade[hidden] { display: none; }
+    .planet.picked .halo { animation: pickPulse .55s ease-in-out 4; }
+    @keyframes pickPulse { 50% { transform: scale(1.6); opacity: 1; box-shadow: 0 0 40px 14px var(--c); } }
+    @media (max-width: 860px) {
+      .zoomctl { display: none; }
+      .plist-btn { margin-top: 0; height: 30px; padding: 0 9px; } .plist-btn span { display: none; }
+      .brand > div:nth-child(2) { display: flex; align-items: center; gap: 8px; }
+      .plist { z-index: 13; left: 0; top: 0; bottom: 0; width: min(300px, 84vw); border-radius: 0 16px 16px 0; padding-top: env(safe-area-inset-top); }
+      .pl-item { padding: 10px 10px; font-size: 14.5px; }
     }
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { animation: none !important; transition: none !important; }
@@ -607,6 +662,7 @@
   <canvas id="stars" aria-hidden="true"></canvas>
   <div class="nebula" aria-hidden="true"></div>
 
+  <div class="zfit-root" id="zfitRoot">
   <header class="top">
     <div class="brand">
       <div class="logo" aria-hidden="true">
@@ -615,6 +671,9 @@
       <div>
         <h1>จักรวาล WW RAUG East <span class="badge" id="exampleBadge" hidden>ตัวอย่าง</span></h1>
         <p id="subline">ศูนย์รวมสถานะงานทุกระบบ · อ่านจากชีตอย่างเดียว</p>
+        <button type="button" class="btn plist-btn" id="btnPlist" aria-controls="plist" aria-expanded="false" title="เปิด/ปิด รายการดวงดาว">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 4h10M3 8h10M3 12h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><span>รายการดวงดาว</span>
+        </button>
       </div>
     </div>
     <section class="hud" aria-label="สรุปภาพรวม">
@@ -650,6 +709,11 @@
         <span class="tag"><i></i>ล่าสุด</span>
         <span class="msg" id="tickerMsg">—</span>
         <span class="upd" id="updLabel"></span>
+        <span class="zoomctl" id="zoomCtl" role="group" aria-label="ขนาดจักรวาล">
+          <button type="button" id="zoomOut" aria-label="ย่อจักรวาล" title="ย่อ (เล็กลง 10%)">−</button>
+          <button type="button" id="zoomLbl" class="zl" aria-label="กลับเป็นขนาดอัตโนมัติ" title="ขนาดตอนนี้ · กดเพื่อกลับเป็นขนาดอัตโนมัติ">100%</button>
+          <button type="button" id="zoomIn" aria-label="ขยายจักรวาล" title="ขยาย (ใหญ่ขึ้น 10%)">+</button>
+        </span>
       </div>
     </section>
   </header>
@@ -688,6 +752,13 @@
     <i class="sep" aria-hidden="true"></i>
     <span>กดดาวเพื่อดูรายละเอียด และ Dashboard</span>
   </footer>
+  </div>
+  <div class="plist-shade" id="plistShade" hidden></div>
+  <aside class="plist glass" id="plist" aria-label="รายการดวงดาว" hidden>
+    <div class="pl-head"><b>รายการดวงดาว</b><button type="button" class="icon-btn" id="plistClose" aria-label="ปิดรายการดวงดาว" title="ปิดรายการ">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3.2 3.2l9.6 9.6M12.8 3.2l-9.6 9.6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></button></div>
+    <div class="pl-body" id="plistBody"></div>
+  </aside>
 
   <div class="backdrop" id="backdrop" hidden></div>
   <aside class="panel" id="panel" role="dialog" aria-modal="true" aria-labelledby="panelTitle" hidden>
@@ -785,7 +856,7 @@
       <button type="button" class="round mic" id="chatMic" aria-label="พูดเพื่อถาม" title="กดแล้วพูดภาษาไทย">
         <svg width="18" height="18" viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5.5" y="1.5" width="5" height="8.5" rx="2.5" fill="currentColor"/><path d="M3 7.5a5 5 0 0010 0M8 12.5v2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
       </button>
-      <textarea id="chatInput" rows="1" placeholder="พิมพ์คำถาม เช่น OFC เลยกำหนดกี่งาน" aria-label="คำถาม"></textarea>
+      <textarea id="chatInput" rows="1" placeholder="พิมพ์คำถาม เช่น True RAUG OFC กี่งาน" aria-label="คำถาม"></textarea>
       <button type="submit" class="round send" id="chatSend" aria-label="ส่ง"><svg width="17" height="17" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2 8l11-5-4 11-2-4.5L2 8z" fill="currentColor"/></svg></button>
     </form>
   </aside>
@@ -923,10 +994,12 @@
       { id: "checkin",  title: "Check In",          c: "#34e0b4", group: "field", ring: true },
       { id: "huato",    title: "บอทหัวต่อ",          c: "#ff9b54", group: "field" },
       { id: "planwork", title: "Planwork",           c: "#5ee1ff", group: "field" },
-      { id: "ofc",      title: "OFC เลยกำหนด",       c: "#ff6b7a", group: "track" },
+      { id: "ofc",      title: "True RAUG OFC",      c: "#ff6b7a", group: "track" },
       { id: "budget",   title: "Budget PE ค้างกำหนด", c: "#ffc94d", group: "track" },
       { id: "fttx",     title: "Block FTTx",        c: "#ff6fd8", group: "track" },
       { id: "pat",      title: "รอเล่ม Pat",          c: "#8f7bff", group: "track", ring: true },
+      { id: "quota",    title: "Quota OFC 2026",     c: "#ff8a3d", group: "track" },
+      { id: "progress", title: "Progress RAUG 2026", c: "#7dff8a", group: "track" },
       { id: "meetings", title: "นัดประชุมการไฟฟ้า",    c: "#4aa3ff", group: "meet" },
       { id: "notes",    title: "บันทึกประชุม",         c: "#c08cff", group: "meet" },
       { id: "links",    title: "แหล่งเก็บข้อมูล",       c: "#00f0ff", group: "meet", ring: true },
@@ -946,7 +1019,7 @@
     const mqCompact = window.matchMedia("(max-width: 860px)");
     state.compact = mqCompact.matches;
     state.view = (function () { const v = params.get("view"); if (v === "list" || v === "galaxy") return v; try { return localStorage.getItem("space_view") === "list" ? "list" : "galaxy"; } catch (e) { return "galaxy"; } })();
-    const SHORT = { checkin: "Check In", huato: "หัวต่อ", planwork: "Planwork", ofc: "OFC", budget: "Budget", fttx: "FTTx", pat: "Pat", meetings: "นัดประชุม", notes: "บันทึก", links: "แหล่งข้อมูล", contacts: "ติดต่อ" };
+    const SHORT = { checkin: "Check In", huato: "หัวต่อ", planwork: "Planwork", ofc: "OFC", budget: "Budget", fttx: "FTTx", pat: "Pat", quota: "Quota", progress: "Progress", meetings: "นัดประชุม", notes: "บันทึก", links: "แหล่งข้อมูล", contacts: "ติดต่อ" };
     const shortName = (p) => SHORT[p.id] || (p.title.length > 10 ? p.title.slice(0, 9) + "…" : p.title);
     let PLANETS = [];
     const pdata = (id) => (state.data && state.data.planets && state.data.planets[id]) || null;
@@ -1083,6 +1156,23 @@
           mg.appendChild(m); p.mEl = m;
         });
       });
+      // left sidebar planet list
+      const pg = $("plistBody"); pg.innerHTML = "";
+      [0, 1, 2, 3].forEach((r) => {
+        const members = PLANETS.filter((p) => RING_OF[p.group] === r);
+        if (!members.length) return;
+        const cap = document.createElement("div"); cap.className = "pl-cap";
+        cap.textContent = (state.caps.find((c) => c.ring === r) || {}).el.textContent; pg.appendChild(cap);
+        members.forEach((p) => {
+          const it = document.createElement("button");
+          it.type = "button"; it.className = "pl-item"; it.style.setProperty("--c", p.c); it.dataset.id = p.id;
+          it.innerHTML = `<i class="pl-dot"></i><span class="pl-t">${esc(p.title)}</span><span class="pl-n">–</span>`;
+          it.title = "เปิด " + p.title;
+          it.addEventListener("click", () => pickPlanet_(p.id));
+          it.addEventListener("mouseenter", () => setHover(p.id)); it.addEventListener("mouseleave", () => setHover(null));
+          pg.appendChild(it); p.plEl = it;
+        });
+      });
       // initial angles
       [0, 1, 2, 3].forEach((r) => {
         const members = PLANETS.filter((p) => RING_OF[p.group] === r);
@@ -1105,28 +1195,56 @@
       const r = el.getBoundingClientRect();
       return r.width > 2 && r.height > 2;
     }
+    /* Zoom-fit: below ZF.W x ZF.H (e.g. a 1024x555 laptop at 100%) lay the galaxy out on a virtual canvas and scale it down,
+       so 100% looks like the browser zoomed out to ~60%. Big screens and phones are unchanged. ?nozoomfit turns it off. */
+    const ZF = { W: 2360, H: 1000, MIN: 0.4, MAX: 1.6, UMIN: 0.5, UMAX: 1.6, KEY: "space_zoom_user" };
+    state.zu = (function () { try { const v = Number(localStorage.getItem(ZF.KEY)); return v >= ZF.UMIN && v <= ZF.UMAX ? v : 1; } catch (e) { return 1; } })();
+    function applyZoomFit_() {
+      const html = document.documentElement, vw = window.innerWidth, vh = window.innerHeight;
+      let s = 1;
+      const enabled = !mqCompact.matches && !params.has("nozoomfit") && vw > 0 && vh > 0;
+      state.zfAuto = enabled ? Math.max(ZF.MIN, Math.min(1, vw / ZF.W, vh / ZF.H)) : 1;
+      if (enabled) s = Math.max(ZF.MIN, Math.min(ZF.MAX, state.zfAuto * (state.zu || 1)));
+      s = Math.round(s * 1000) / 1000;
+      const zl = $("zoomLbl"); if (zl) zl.textContent = Math.round(s * 100) + "%";
+      const zc = $("zoomCtl"); if (zc) zc.classList.toggle("manual", Math.abs((state.zu || 1) - 1) > 0.001);
+      const on = Math.abs(s - 1) > 0.004;
+      state.zf = on ? s : 1;
+      html.classList.toggle("zfit", on);
+      if (on) {
+        html.style.setProperty("--zfs", String(s));
+        html.style.setProperty("--zfw", (vw / s).toFixed(2) + "px");
+        html.style.setProperty("--zfh", (vh / s).toFixed(2) + "px");
+        // gently counter-scale label text so it stays readable (about 9px+ on screen)
+        html.style.setProperty("--zfk", Math.max(1, Math.min(1.45, Math.pow(1 / s, 0.45))).toFixed(3));
+      } else { ["--zfs", "--zfw", "--zfh", "--zfk"].forEach((k) => html.style.removeProperty(k)); }
+    }
     function fitStageToChrome_() {
-      if (state.compact) { stage.style.top = ""; stage.style.bottom = ""; return; }
+      if (state.compact) { stage.style.top = ""; stage.style.bottom = ""; stage.style.left = ""; return; }
       const head = document.querySelector("header.top");
       const leg = document.querySelector("footer.legend");
-      const vh = window.innerHeight;
+      const z = state.zf || 1;
+      const vh = window.innerHeight / z;
       let top = 112, bottom = 60;
-      if (visEl_(head)) top = Math.max(80, Math.ceil(head.getBoundingClientRect().bottom) + 8);
-      if (visEl_(leg)) bottom = Math.max(48, Math.ceil(vh - leg.getBoundingClientRect().top) + 8);
+      if (visEl_(head)) top = Math.max(80, Math.ceil(head.getBoundingClientRect().bottom / z) + 8);
+      if (visEl_(leg)) bottom = Math.max(48, Math.ceil(vh - leg.getBoundingClientRect().top / z) + 8);
       if (vh - top - bottom < 160) bottom = Math.max(36, vh - top - 160);
+      const pl = $("plist");
+      stage.style.left = (state.plOpen && pl && visEl_(pl)) ? Math.ceil(pl.getBoundingClientRect().right / z + 10) + "px" : "";
       stage.style.top = top + "px";
       stage.style.bottom = bottom + "px";
     }
     function chromeBoxes_() {
       const sb = stage.getBoundingClientRect();
+      const z = state.zf || 1;
       const boxes = [];
       const add = (el, pad) => {
         if (!visEl_(el)) return;
         const r = el.getBoundingClientRect();
-        const x1 = Math.max(0, r.left - sb.left - pad);
-        const y1 = Math.max(0, r.top - sb.top - pad);
-        const x2 = Math.min(sb.width, r.right - sb.left + pad);
-        const y2 = Math.min(sb.height, r.bottom - sb.top + pad);
+        const x1 = Math.max(0, (r.left - sb.left) / z - pad);
+        const y1 = Math.max(0, (r.top - sb.top) / z - pad);
+        const x2 = Math.min(sb.width / z, (r.right - sb.left) / z + pad);
+        const y2 = Math.min(sb.height / z, (r.bottom - sb.top) / z + pad);
         if (x2 - x1 > 2 && y2 - y1 > 2) boxes.push({ x: x1, y: y1, w: x2 - x1, h: y2 - y1 });
       };
       add(document.querySelector("header.top"), 6);
@@ -1144,6 +1262,7 @@
       return r - Math.hypot(cx - qx, cy - qy);
     }
     function computeGeom() {
+      applyZoomFit_();
       fitStageToChrome_();
       const W = stage.clientWidth, H = stage.clientHeight;
       if (!W || !H) return null;
@@ -1504,6 +1623,11 @@
         const rb = p.mEl.querySelector(".m-ref"); if (rb) rb.disabled = state.refreshing.has(p.id);
       }
       p.el.querySelector(".count").textContent = countText(d.count);
+      if (p.plEl) {
+        p.plEl.classList.remove("is-ok", "is-alert", "is-watch", "is-error"); p.plEl.classList.add("is-" + status);
+        p.plEl.querySelector(".pl-n").textContent = countText(d.count);
+        p.plEl.title = p.title + (lbl ? " · " + lbl : "");
+      }
       p.el.setAttribute("aria-label", p.title + " " + lbl);
       if (p.link) {
         p.link.classList.toggle("alert", status === "alert");
@@ -1540,6 +1664,10 @@
       if (ofc && ofc.rows && ofc.rows[0]) tickerItems.push("OFC " + (ofc.count_label || "") + " · " + [ofc.rows[0].eas, ofc.rows[0].province].filter(Boolean).join(" "));
       const ft = pdata("fttx");
       if (ft && ft.soon && ft.soon.length) tickerItems.push("Block FTTx ครบกำหนดพรุ่งนี้ " + ft.soon.length + " งาน");
+      const qo = pdata("quota");
+      if (qo && qo.ok !== false && qo.count_label && qo.status !== "ok") tickerItems.push("Quota OFC 2026 " + qo.count_label);
+      const pg = pdata("progress");
+      if (pg && pg.ok !== false && pg.count_label) tickerItems.push("Progress RAUG 2026 " + pg.count_label + " ล้านบาท");
       const pw = pdata("planwork");
       if (pw && pw.count) tickerItems.push("Planwork " + (pw.count_label || (pw.count + " งาน")));
       if (ci && ci.recent && ci.recent[0]) tickerItems.push("Check In ล่าสุด " + ci.recent[0].sites + (ci.recent[0].vender ? " · " + ci.recent[0].vender : ""));
@@ -1560,6 +1688,12 @@
       return `<div class="row"><div style="min-width:0"><div class="t ${cls || ""}">${esc(title)}</div>${sub ? `<div class="s">${esc(sub)}</div>` : ""}</div>${chip ? `<span class="chip ${tone || ""}">${esc(chip)}</span>` : ""}</div>`;
     }
     const none = (t) => `<div class="s">${esc(t)}</div>`;
+    const fmtN = (x, dg) => (x == null || x === "" ? "–" : Number(x).toLocaleString("th-TH", { maximumFractionDigits: dg == null ? 2 : dg }));
+    // แถบเกจเล็กๆ ในแผงดาว: ค่า/สูงสุด (เกิน 100% เป็นสีแดง)
+    function gauge(v, max, tone) {
+      const pct = max > 0 ? v * 100 / max : 0, w = Math.max(0, Math.min(100, pct));
+      return `<div class="gbar ${tone || ""}" role="img" aria-label="${fmtN(pct, 0)}%"><i style="width:${w.toFixed(1)}%"></i>${pct > 100 ? `<b style="left:${(10000 / pct).toFixed(1)}%"></b>` : ""}</div>`;
+    }
     /* ---------- ฟอร์มเพิ่มข้อมูลลงชีต: บันทึกประชุม / นัดหมาย / Block FTTx (เฉพาะเจ้าของสคริปต์) ---------- */
     const ADD_FORMS = {
       notes: { btn: "➕ เพิ่มบันทึกประชุม", fn: "addMeetingNote", url: "/api/notes/add", ok: "✅ บันทึกประชุมแล้ว", titleKey: "title",
@@ -1720,6 +1854,25 @@
           <div class="group-title">ครบกำหนดพรุ่งนี้</div>${(d.soon || []).map((r) => f(r, "พรุ่งนี้", "watch")).join("") || none("ไม่มีงานครบพรุ่งนี้")}`;
         AF.bind(b, "fttx");
       },
+      quota(b, d) {
+        const gs = d.groups || [];
+        b.innerHTML = `<div class="group-title">โควตาแต่ละกลุ่ม (km)</div>` + (gs.map((g) => `<div class="row qrow"><div style="min-width:0;flex:1">
+            <div class="t">${esc(g.name)}</div>
+            <div class="s">Request ${fmtN(g.request)} / Max ${fmtN(g.max)} · คงเหลือ <b class="${g.remain < 0 ? "neg" : ""}">${fmtN(g.remain)}</b></div>
+            ${gauge(g.request, g.max, g.over ? "alert" : g.near ? "watch" : "ok")}
+            <div class="s">Approved ${fmtN(g.approved_km)} km (${fmtN(g.approved_pct, 0)}%) · Completed ${fmtN(g.completed_km)} km · Plan Final ${esc(g.plan_final || "–")}${g.budget_over ? " · Budget over ฿" + (g.budget_over_text || fmtN(g.budget_over, 0)) : ""}</div>
+          </div><span class="chip ${g.tone === "ok" ? "ok" : g.tone}">${esc(g.reasons && g.reasons[0] ? g.reasons[0] : "ปกติ")}</span></div>`).join("") || none("ไม่มีข้อมูลโควตา")) +
+          ((d.not_keyed || []).length ? `<div class="group-title">ยังไม่คีย์ Quota (${d.not_keyed.length} งาน)</div>` + d.not_keyed.slice(0, 8).map((r) => row([r.group, r.province].filter(Boolean).join(" · "), (r.project || "") + (r.status ? " · " + r.status : ""), "code", fmtN(r.km) + " km", "watch")).join("") : "") +
+          ((d.notes || []).length ? `<div class="group-title">หมายเหตุจากชีต</div><div class="s">${d.notes.map(esc).join("<br>")}</div>` : "");
+      },
+      progress(b, d) {
+        const ms = (d.months || []).filter((m) => m.actual != null).slice(-4).reverse();
+        b.innerHTML = `<div class="group-title">สะสม ม.ค.–${esc(d.last_month_label || "")} (ล้านบาท)</div>
+          <div class="row qrow"><div style="min-width:0;flex:1"><div class="t">Actual ${fmtN(d.ytd_actual)} / Plan ${fmtN(d.ytd_plan)}</div>${gauge(d.ytd_actual, d.ytd_plan, d.status === "alert" ? "alert" : d.status === "watch" ? "watch" : "ok")}
+          <div class="s">แผนทั้งปี ${fmtN(d.year_plan)} · ยังต้องทำอีก ${fmtN(d.remain_to_plan)} · Out of Scope ${fmtN(d.oos && d.oos.rev)} (ไม่นับใน %)</div></div><span class="chip ${d.status === "ok" ? "ok" : d.status}">${fmtN(d.ytd_pct, 1)}%</span></div>` +
+          ((d.warnings || []).length ? `<div class="group-title">ต้องติดตาม</div>` + d.warnings.map((w) => row(w, "", "", "", "watch")).join("") : "") +
+          `<div class="group-title">รายเดือนล่าสุด</div>` + (ms.map((m) => row(m.label, "RAUG " + fmtN(m.raug) + " · Improvement " + fmtN(m.imp) + (m.oos ? " · OOS " + fmtN(m.oos) : ""), "code", fmtN(m.actual) + " / " + fmtN(m.plan) + " (" + fmtN(m.pct, 0) + "%)", m.pct != null && m.pct < 90 ? "watch" : "ok")).join("") || none("ยังไม่มียอด"));
+      },
       pat(b, d) {
         b.innerHTML = `<div class="group-title">แยกตาม Partner (ยังไม่ลง FBOQ)</div>` + ((d.partners || []).map((p) => row(p.partner, (p.types || []).map((t) => t.type + " " + t.count).join(" · "), "", String(p.count))).join("") || none("ไม่มีงานรอเล่ม Pat"));
       },
@@ -1799,7 +1952,7 @@
             ${ib("gEdit", "แก้ไขกลุ่ม", "✎")}${ib("gDel", "ลบกลุ่ม", "🗑", false, "danger")}${ib("lAdd", "เพิ่มลิงก์ในกลุ่มนี้", "＋")}</div>
           ${links.length ? links.map((l) => {
             const li = g.links.indexOf(l);
-            return `<div class="lk-link" data-lid="${esc(l.id)}"><a href="${esc(l.url)}" target="_blank" rel="noopener"><span class="nm">${hl(l.name, q)}</span><span class="sub">${hl([l.note, q ? l.url : host(l.url)].filter(Boolean).join(" · "), q)}</span></a>
+            return `<div class="lk-link" data-lid="${esc(l.id)}"><a href="${esc(l.url)}" target="_blank" rel="noopener"><span class="nm">${hl(l.name, q)}${l.builtin ? `<em class="lk-def" title="ลิงก์ตั้งต้นของระบบ แก้หรือลบได้">ตั้งต้น</em>` : ""}</span><span class="sub">${hl([l.note, q ? l.url : host(l.url)].filter(Boolean).join(" · "), q)}</span></a>
               ${q ? "" : ib("lUp", "เลื่อนขึ้น", "↑", li === 0) + ib("lDown", "เลื่อนลง", "↓", li === g.links.length - 1)}${ib("lEdit", "แก้ไขลิงก์", "✎")}${ib("lDel", "ลบลิงก์", "🗑", false, "danger")}</div>`;
           }).join("") : `<div class="lk-empty">ยังไม่มีลิงก์ — กด ＋ เพื่อเพิ่ม</div>`}
         </section>`;
@@ -2488,7 +2641,49 @@
       }
     })();
 
-    let rt = 0; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => { geom = null; }, 60); });
+    let rt = 0; addEventListener("resize", () => { applyZoomFit_(); placePlist_(); clearTimeout(rt); rt = setTimeout(() => { geom = null; placePlist_(); }, 60); });
+    applyZoomFit_();
+    function setZoomUser_(f) {
+      state.zu = Math.max(ZF.UMIN, Math.min(ZF.UMAX, Math.round(f * 100) / 100));
+      try { if (Math.abs(state.zu - 1) < 0.001) localStorage.removeItem(ZF.KEY); else localStorage.setItem(ZF.KEY, String(state.zu)); } catch (e) {}
+      applyZoomFit_(); relayout_();
+    }
+    function relayout_() { geom = null; placePlist_(); if (PLANETS.length) render(); placePlist_(); }
+    $("zoomOut").addEventListener("click", () => setZoomUser_((state.zu || 1) / 1.1));
+    $("zoomIn").addEventListener("click", () => setZoomUser_((state.zu || 1) * 1.1));
+    $("zoomLbl").addEventListener("click", () => setZoomUser_(1));
+    window.__setZoomUser = setZoomUser_;
+    /* ---------- Planet list sidebar (left) ---------- */
+    const PL_KEY = "space_plist_open";
+    state.plOpen = (function () { if (mqCompact.matches) return false; try { return localStorage.getItem(PL_KEY) === "1"; } catch (e) { return false; } })();
+    if (params.get("plist") === "1") state.plOpen = true; else if (params.get("plist") === "0") state.plOpen = false;
+    function placePlist_() {
+      const el = $("plist"); if (!el) return;
+      document.body.classList.toggle("plist-open", !!state.plOpen);
+      el.hidden = !state.plOpen; $("plistShade").hidden = !(state.plOpen && state.compact);
+      $("btnPlist").setAttribute("aria-expanded", state.plOpen ? "true" : "false");
+      if (!state.plOpen || state.compact) { el.style.top = ""; el.style.bottom = ""; return; }
+      const head = document.querySelector("header.top"), leg = document.querySelector("footer.legend");
+      const top = visEl_(head) ? Math.ceil(head.getBoundingClientRect().bottom) + 8 : 12;
+      const bot = visEl_(leg) ? Math.ceil(window.innerHeight - leg.getBoundingClientRect().top) + 8 : 12;
+      el.style.top = top + "px"; el.style.bottom = Math.max(8, bot) + "px";
+    }
+    function setPlist_(open) {
+      state.plOpen = !!open;
+      if (!state.compact) { try { localStorage.setItem(PL_KEY, state.plOpen ? "1" : "0"); } catch (e) {} }
+      relayout_();
+    }
+    function pickPlanet_(id) {
+      const p = PLANETS.find((x) => x.id === id); if (!p) return;
+      if (state.compact) { state.plOpen = false; placePlist_(); }
+      if (p.el) { p.el.classList.remove("picked"); void p.el.offsetWidth; p.el.classList.add("picked"); setTimeout(() => p.el.classList.remove("picked"), 2200); }
+      PLANETS.forEach((q) => q.plEl && q.plEl.classList.toggle("on", q.id === id));
+      openPanel(id);
+    }
+    $("btnPlist").addEventListener("click", () => setPlist_(!state.plOpen));
+    $("plistClose").addEventListener("click", () => setPlist_(false));
+    $("plistShade").addEventListener("click", () => setPlist_(false));
+    placePlist_();
     setFrozen(state.frozen);
     document.addEventListener("visibilitychange", () => stars.setRunning(!document.hidden && !state.frozen && !state.reduced));
 
@@ -2696,7 +2891,7 @@
     function setListening(on) {
       listening = on; mic.classList.toggle("on", on); document.body.classList.toggle("listening", on);
       mic.setAttribute("aria-label", on ? "หยุดฟัง" : "พูดเพื่อถาม");
-      input.placeholder = on ? "กำลังฟัง… พูดได้เลย" : (SR ? "พิมพ์คำถาม เช่น OFC เลยกำหนดกี่งาน" : input.placeholder);
+      input.placeholder = on ? "กำลังฟัง… พูดได้เลย" : (SR ? "พิมพ์คำถาม เช่น True RAUG OFC กี่งาน" : input.placeholder);
     }
 
     function openChat() {
